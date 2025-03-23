@@ -1,4 +1,4 @@
-package com.example.pap_shop.controller;
+package com.pap_shop.controller;
 
 
 import org.springframework.web.bind.annotation.GetMapping;
