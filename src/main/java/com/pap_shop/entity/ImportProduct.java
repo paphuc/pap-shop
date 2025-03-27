@@ -19,8 +19,9 @@ public class ImportProduct {
     @Column(name = "nha_cung_cap", nullable = false)
     private String nhaCungCap;
 
-    @Column(name = "san_pham", nullable = false)
-    private String sanPham;
+    @ManyToOne
+    @JoinColumn(name = "san_pham_id", nullable = false)
+    private Product sanPham;
 
     @Column(name = "so_luong", nullable = false)
     private Integer soLuong;

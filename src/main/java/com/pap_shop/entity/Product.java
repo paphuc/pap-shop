@@ -1,6 +1,8 @@
 package com.pap_shop.entity;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -32,4 +34,12 @@ public class Product {
 
     @OneToMany(mappedBy = "sanPham", cascade = CascadeType.ALL)
     private List<OrderDetai> chiTietDonHangs;
+
+
+    @Temporal(TemporalType.DATE)
+    @Column(name = "ngay_cap_nhat")
+    private Date ngayCapNhat;
+
+    @OneToMany(mappedBy = "sanPham", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ImportProduct> nhapHangList;
 }
