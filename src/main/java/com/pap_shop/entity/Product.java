@@ -23,6 +23,10 @@ public class Product {
     @Column(nullable = false, length = 255)
     private String name;
 
+    @ManyToOne
+    @JoinColumn(name = "id_category")
+    private Category category;
+
     @Column(columnDefinition = "TEXT")
     private String description;
 
