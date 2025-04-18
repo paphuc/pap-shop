@@ -1,4 +1,4 @@
-package com.pap_shop.model;
+package com.pap_shop.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
