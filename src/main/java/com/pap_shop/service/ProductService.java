@@ -2,7 +2,7 @@ package com.pap_shop.service;
 
 import com.pap_shop.entity.Category;
 import com.pap_shop.entity.Product;
-import com.pap_shop.model.ProductDTO;
+import com.pap_shop.DTO.ProductDTO;
 import com.pap_shop.repository.CategoryRepository;
 import com.pap_shop.repository.ProductRepository;
 import org.springframework.stereotype.Service;

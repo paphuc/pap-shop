@@ -1,7 +1,7 @@
 package com.pap_shop.controller;
 
 import com.pap_shop.entity.Product;
-import com.pap_shop.model.ProductDTO;
+import com.pap_shop.DTO.ProductDTO;
 import com.pap_shop.service.ProductService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
