@@ -1,7 +1,7 @@
 package com.pap_shop.controller;
 
 import com.pap_shop.entity.Product;
-import com.pap_shop.DTO.ProductDTO;
+import com.pap_shop.dto.AddProductRequest;
 import com.pap_shop.service.ProductService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
@@ -30,12 +30,12 @@ public class ProductController {
     /**
      * Adds a new product to the system.
      *
-     * @param productDTO the data transfer object containing product information
+     * @param addProductRequest the data transfer object containing product information
      * @return a ResponseEntity containing the saved product
      */
     @PostMapping
-    public ResponseEntity<Product> addProduct(@RequestBody ProductDTO productDTO) {
-        Product savedProduct = productService.addProduct(productDTO);
+    public ResponseEntity<Product> addProduct(@RequestBody AddProductRequest addProductRequest) {
+        Product savedProduct = productService.addProduct(addProductRequest);
         return ResponseEntity.ok(savedProduct);
     }
 

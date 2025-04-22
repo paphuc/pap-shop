@@ -2,7 +2,7 @@ package com.pap_shop.service;
 
 import com.pap_shop.entity.Category;
 import com.pap_shop.entity.Product;
-import com.pap_shop.DTO.ProductDTO;
+import com.pap_shop.dto.AddProductRequest;
 import com.pap_shop.repository.CategoryRepository;
 import com.pap_shop.repository.ProductRepository;
 import org.springframework.stereotype.Service;
@@ -33,21 +33,21 @@ public class ProductService {
     /**
      * Adds a new product using product data from a DTO.
      *
-     * @param productDTO the data transfer object containing product information
+     * @param addProductRequest the data transfer object containing product information
      * @return the saved product entity
      * @throws RuntimeException if the category specified in the DTO is not found
      */
-    public Product addProduct(ProductDTO productDTO) {
+    public Product addProduct(AddProductRequest addProductRequest) {
         // Find category by ID and handle case where it is not found
-        Category category = categoryRepository.findById(productDTO.getCategory())
+        Category category = categoryRepository.findById(addProductRequest.getCategory())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 
         Product product = new Product();
-        product.setName(productDTO.getName());
-        product.setPrice(productDTO.getPrice());
+        product.setName(addProductRequest.getName());
+        product.setPrice(addProductRequest.getPrice());
         product.setCategory(category);
-        product.setStock(productDTO.getStock());
-        product.setDescription(productDTO.getDescription());
+        product.setStock(addProductRequest.getStock());
+        product.setDescription(addProductRequest.getDescription());
 
         return productRepository.save(product);
     }

@@ -1,4 +1,4 @@
-package com.pap_shop.DTO;
+package com.pap_shop.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductDTO {
+public class AddProductRequest {
 
     /**
      * The name of the product.

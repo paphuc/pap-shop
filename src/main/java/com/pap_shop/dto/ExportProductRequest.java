@@ -1,4 +1,4 @@
-package com.pap_shop.DTO;
+package com.pap_shop.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +9,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class ExportRequestDTO {
+public class ExportProductRequest {
     private Integer productId;  // ID of the product to export
     private Integer quantity;   // Quantity to export
     private String note;        // Optional note for the export

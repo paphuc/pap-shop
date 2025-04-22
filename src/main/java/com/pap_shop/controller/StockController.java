@@ -1,7 +1,7 @@
 package com.pap_shop.controller;
 
 import com.pap_shop.service.StockService;
-import com.pap_shop.DTO.ExportRequestDTO;
+import com.pap_shop.dto.ExportProductRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,7 +32,7 @@ public class StockController {
      * @return success message if export is successful
      */
     @PostMapping("/export")
-    public ResponseEntity<String> exportProduct(@RequestBody ExportRequestDTO request) {
+    public ResponseEntity<String> exportProduct(@RequestBody ExportProductRequest request) {
         stockService.exportProduct(request.getProductId(), request.getQuantity());
         return ResponseEntity.ok("Export success");
     }
