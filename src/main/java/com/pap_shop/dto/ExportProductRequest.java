@@ -3,14 +3,25 @@ package com.pap_shop.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
- * Data Transfer Object for handling export product requests.
- * Contains the product ID, quantity to export, and an optional note.
+ * Request body for exporting multiple products.
  */
 @Getter
 @Setter
 public class ExportProductRequest {
-    private Integer productId;  // ID of the product to export
-    private Integer quantity;   // Quantity to export
-    private String note;        // Optional note for the export
+
+    private List<Item> items;
+    private String note;
+
+    /**
+     * Represents a single product and quantity to export.
+     */
+    @Getter
+    @Setter
+    public static class Item {
+        private Integer productId;
+        private Integer quantity;
+    }
 }

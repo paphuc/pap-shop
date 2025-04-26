@@ -26,14 +26,16 @@ public class StockController {
     }
 
     /**
-     * Endpoint to export a product and update stock accordingly.
+     * Endpoint to export a list of products and update stock accordingly.
      *
-     * @param request the export request containing productId and quantity
+     * @param request the export request containing list of productId and quantity
      * @return success message if export is successful
      */
     @PostMapping("/export")
-    public ResponseEntity<String> exportProduct(@RequestBody ExportProductRequest request) {
-        stockService.exportProduct(request.getProductId(), request.getQuantity());
+    public ResponseEntity<String> exportProducts(@RequestBody ExportProductRequest request) {
+        for (ExportProductRequest.Item item : request.getItems()) {
+            stockService.exportProduct(item.getProductId(), item.getQuantity());
+        }
         return ResponseEntity.ok("Export success");
     }
 }
