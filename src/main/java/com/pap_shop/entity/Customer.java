@@ -57,4 +57,11 @@ public class Customer {
      */
     @Column(name = "created_at", updatable = false)
     private Timestamp createdAt;
+
+    /**
+     * The password of customer's account
+     */
+    @Column(name = "password")
+    private String password;
+
 }
