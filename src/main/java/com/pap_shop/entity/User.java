@@ -9,12 +9,12 @@ import lombok.*;
  * Contains information about customer's id, name, email, phone, address, and creation timestamp.
  */
 @Entity
-@Table(name = "customers")
+@Table(name = "users")
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Customer {
+public class User {
 
     /**
      * The unique identifier for the customer.
@@ -64,4 +64,7 @@ public class Customer {
     @Column(name = "password")
     private String password;
 
+    @ManyToOne
+    @JoinColumn(name = "id_role")
+    private Roles role;
 }

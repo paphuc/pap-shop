@@ -6,7 +6,7 @@ import io.jsonwebtoken.security.Keys;
 import java.util.Date;
 
 public class JwtUtil {
-    private static final String SECRET_KEY = "Supper-Secret-Key*khong-ai-co-the-biet";
+    private static final String SECRET_KEY = "fh8d+sYvG+GDpR1ibC0WMsD7q40pTwc4x1d5dTZ1t9nO83ge46CI5JNhbpB9bM9W";
 
     public static String generateToken(String email) {
         return Jwts.builder()

@@ -1,7 +1,7 @@
 package com.pap_shop.controller;
 
 import com.pap_shop.dto.LoginRequest;
-import com.pap_shop.entity.Customer;
+import com.pap_shop.entity.User;
 import com.pap_shop.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,12 +23,12 @@ public class AuthController {
     /**
      * Register a new customer.
      *
-     * @param customer the customer object containing registration details
+     * @param user the customer object containing registration details
      * @return a success message
      */
     @PostMapping("/register")
-    public String register(@RequestBody Customer customer) {
-        userService.register(customer);
+    public String register(@RequestBody User user) {
+        userService.register(user);
         return "Registered successfully";
     }
 
