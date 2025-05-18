@@ -1,8 +1,9 @@
 package com.pap_shop.entity;
 
-import jakarta.persistence.*;
 import java.sql.Timestamp;
 import lombok.*;
+
+import javax.persistence.*;
 
 /**
  * Entity representing a customer.

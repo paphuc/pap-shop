@@ -1,11 +1,11 @@
 package com.pap_shop.entity;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.persistence.*;
 import java.sql.Timestamp;
 import java.math.BigDecimal;
 
