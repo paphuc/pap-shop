@@ -29,9 +29,33 @@ public class UserService {
      *Register a new customer by encoding their password before saving to database.
      *
      * @param user the customer to be registered
-     * @return the saved customer object
      */
     public void register(User user) {
+
+        if (user.getPassword() == null || user.getPassword().length() < 6) {
+            throw new IllegalArgumentException("Password must be at least 6 characters");
+        }
+
+        if (user.getEmail() == null || !user.getEmail().matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
+            throw new IllegalArgumentException("Invalid email format");
+        }
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email already in use");
+        }
+
+        if (user.getPhone() == null || !user.getPhone().matches("^\\d{9,15}$")) {
+            throw new IllegalArgumentException("Invalid phone number");
+        }
+        if (userRepository.findByPhone(user.getPhone()).isPresent()) {
+            throw new IllegalArgumentException("Phone already in use");
+        }
+
+        if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
+            throw new IllegalArgumentException("Username is required");
+        }
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            throw new IllegalArgumentException("Username already in use");
+        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         Roles role = roleRepository.findById(2)

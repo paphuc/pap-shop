@@ -16,6 +16,19 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.sql.Timestamp;
 import java.time.Instant;
 
+/**
+ * Configuration class for application initialization.
+ *
+ * This configuration runs automatically at application startup.
+ * It ensures that the default roles ("ADMIN" and "USER") exist,
+ * and creates a default admin user if one does not already exist.
+ *
+ * Admin user credentials (default):
+ * - username: admin
+ * - password: 1234
+ *
+ * Note: It's recommended to change the default password after the first login.
+ */
 @Configuration
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
