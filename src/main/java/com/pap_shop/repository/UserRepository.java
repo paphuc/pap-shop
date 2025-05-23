@@ -24,4 +24,6 @@ public interface UserRepository extends  JpaRepository<User, Integer>{
      * @return the specified customer
      */
     Optional<User> findByPhone(String phone);
+
+    Optional<User> findByUsername(String username);
 }

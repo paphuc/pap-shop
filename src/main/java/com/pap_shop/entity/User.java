@@ -13,6 +13,7 @@ import javax.persistence.*;
 @Table(name = "users")
 @Setter
 @Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class User {
@@ -56,16 +57,19 @@ public class User {
      * The timestamp when the customer record was created.
      * This field is not updatable.
      */
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", updatable = true)
     private Timestamp createdAt;
 
     /**
      * The password of customer's account
      */
-    @Column(name = "password")
+    @Column(name = "password",nullable = false)
     private String password;
 
+    @Column(name = "username",nullable = false)
+    private  String username;
+
     @ManyToOne
-    @JoinColumn(name = "id_role")
+    @JoinColumn(name = "id_role",nullable = false)
     private Roles role;
 }

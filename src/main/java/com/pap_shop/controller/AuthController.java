@@ -40,6 +40,6 @@ public class AuthController {
      */
     @PostMapping("/login")
     public String login(@RequestBody LoginRequest request) {
-        return userService.login(request.getEmailOrPhone(), request.getPassword());
+        return userService.login(request.getEmailOrPhoneOrUsername(), request.getPassword());
     }
 }
