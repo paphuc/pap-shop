@@ -1,5 +1,8 @@
 package com.pap_shop.service;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import com.pap_shop.entity.Category;
 import com.pap_shop.repository.CategoryRepository;
@@ -11,17 +14,11 @@ import java.util.List;
  * Provides business logic for adding and retrieving categories.
  */
 @Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CategoryService {
-    private final CategoryRepository categoryRepository;
 
-    /**
-     * Constructor to inject CategoryRepository.
-     *
-     * @param categoryRepository the repository used for category operations
-     */
-    public CategoryService(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
-    }
+    CategoryRepository categoryRepository;
 
     /**
      * Adds a new category to the system.

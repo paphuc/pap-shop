@@ -1,10 +1,11 @@
 package com.pap_shop.entity;
 
-import jakarta.persistence.*;
 import java.sql.Timestamp;
 import java.util.List;
 import java.math.BigDecimal;
 import lombok.*;
+
+import javax.persistence.*;
 
 /**
  * Entity representing an order placed by a customer.
