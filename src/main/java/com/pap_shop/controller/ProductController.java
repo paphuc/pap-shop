@@ -1,5 +1,6 @@
 package com.pap_shop.controller;
 
+import com.pap_shop.dto.UpdateProductRequest;
 import com.pap_shop.entity.Product;
 import com.pap_shop.dto.AddProductRequest;
 import com.pap_shop.service.ProductService;
@@ -71,5 +72,13 @@ public class ProductController {
     public ResponseEntity<List<Product>> getProductByCategoryID(@PathVariable Integer categoryID) {
         List<Product> products = productService.getProductsByCategoryID(categoryID);
         return ResponseEntity.ok(products);
+    }
+
+    @PutMapping("/{productId}")
+    public ResponseEntity<?> updateProduct(
+            @PathVariable Integer productId,
+            @RequestBody UpdateProductRequest request) {
+        productService.updateProduct(productId, request);
+        return ResponseEntity.ok("Product updated successfully");
     }
 }

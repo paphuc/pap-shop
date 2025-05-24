@@ -1,5 +1,6 @@
 package com.pap_shop.service;
 
+import com.pap_shop.dto.UpdateProductRequest;
 import com.pap_shop.entity.Category;
 import com.pap_shop.entity.Product;
 import com.pap_shop.dto.AddProductRequest;
@@ -89,5 +90,24 @@ public class ProductService {
      */
     public List<Product> getProductsByCategoryID(Integer ID) {
         return productRepository.findAllByCategoryID(ID);
+    }
+
+
+    public void updateProduct(Integer productId, UpdateProductRequest request) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
+        product.setStock(request.getStock());
+
+        if (request.getCategoryId() != null) {
+            Category category = categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new RuntimeException("Category not found"));
+            product.setCategory(category);
+        }
+
+        productRepository.save(product);
     }
 }
