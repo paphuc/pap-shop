@@ -81,4 +81,10 @@ public class ProductController {
         productService.updateProduct(productId, request);
         return ResponseEntity.ok("Product updated successfully");
     }
+
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<?> deleteProduct(@PathVariable Integer productId) {
+        productService.deleteProduct(productId);
+        return ResponseEntity.ok("Product deleted successfully");
+    }
 }

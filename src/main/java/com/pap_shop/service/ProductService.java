@@ -7,6 +7,7 @@ import com.pap_shop.dto.AddProductRequest;
 import com.pap_shop.repository.CategoryRepository;
 import com.pap_shop.repository.ProductRepository;
 import org.springframework.stereotype.Service;
+import com.pap_shop.repository.StockEntryRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,7 @@ import java.util.Optional;
 public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final StockEntryRepository stockEntryRepository;
 
     /**
      * Constructor to inject ProductRepository and CategoryRepository.
@@ -26,9 +28,10 @@ public class ProductService {
      * @param productRepository the repository used for product operations
      * @param categoryRepository the repository used for category operations
      */
-    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository) {
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, StockEntryRepository stockEntryRepository) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+        this.stockEntryRepository = stockEntryRepository;
     }
 
     /**
@@ -109,5 +112,17 @@ public class ProductService {
         }
 
         productRepository.save(product);
+    }
+
+    public void deleteProduct(Integer productId) {
+        if (!productRepository.existsById(productId)) {
+            throw new RuntimeException("Product not found");
+        }
+
+        // Xóa tất cả stock entries liên quan
+        stockEntryRepository.deleteByProductId(productId);
+
+        // Sau đó mới xóa sản phẩm
+        productRepository.deleteById(productId);
     }
 }
