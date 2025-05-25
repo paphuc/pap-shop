@@ -33,7 +33,7 @@ public class Order {
      */
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
-    private Customer customer;
+    private User user;
 
     /**
      * The total price of the order.

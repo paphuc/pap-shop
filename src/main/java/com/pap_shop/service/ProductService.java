@@ -5,6 +5,9 @@ import com.pap_shop.entity.Product;
 import com.pap_shop.dto.AddProductRequest;
 import com.pap_shop.repository.CategoryRepository;
 import com.pap_shop.repository.ProductRepository;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,20 +18,11 @@ import java.util.Optional;
  * Provides business logic for adding, retrieving, and searching products.
  */
 @Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProductService {
-    private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository;
-
-    /**
-     * Constructor to inject ProductRepository and CategoryRepository.
-     *
-     * @param productRepository the repository used for product operations
-     * @param categoryRepository the repository used for category operations
-     */
-    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository) {
-        this.productRepository = productRepository;
-        this.categoryRepository = categoryRepository;
-    }
+    ProductRepository productRepository;
+    CategoryRepository categoryRepository;
 
     /**
      * Adds a new product using product data from a DTO.
