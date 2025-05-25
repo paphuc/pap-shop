@@ -10,12 +10,13 @@ import javax.persistence.*;
  * Contains information about customer's id, name, email, phone, address, and creation timestamp.
  */
 @Entity
-@Table(name = "customers")
+@Table(name = "users")
 @Setter
 @Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Customer {
+public class User {
 
     /**
      * The unique identifier for the customer.
@@ -56,6 +57,19 @@ public class Customer {
      * The timestamp when the customer record was created.
      * This field is not updatable.
      */
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", updatable = true)
     private Timestamp createdAt;
+
+    /**
+     * The password of customer's account
+     */
+    @Column(name = "password",nullable = false)
+    private String password;
+
+    @Column(name = "username",nullable = false)
+    private  String username;
+
+    @ManyToOne
+    @JoinColumn(name = "id_role",nullable = false)
+    private Roles role;
 }

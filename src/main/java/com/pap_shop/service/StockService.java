@@ -5,8 +5,10 @@ import com.pap_shop.entity.StockEntry;
 import com.pap_shop.repository.ProductRepository;
 import com.pap_shop.entity.Product;
 import com.pap_shop.repository.StockEntryRepository;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
-
 import java.security.Timestamp;
 
 /**
@@ -14,14 +16,12 @@ import java.security.Timestamp;
  * Includes checking current stock and updating the stock after export.
  */
 @Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class StockService {
-    private final ProductRepository productRepository;
-    private final StockEntryRepository stockEntryRepository;
 
-    public StockService(ProductRepository productRepository, StockEntryRepository stockEntryRepository){
-        this.productRepository = productRepository;
-        this.stockEntryRepository = stockEntryRepository;
-    }
+    ProductRepository productRepository;
+    StockEntryRepository stockEntryRepository;
 
     /**
      * Export Product by its ID
