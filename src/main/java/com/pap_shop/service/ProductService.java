@@ -1,5 +1,6 @@
 package com.pap_shop.service;
 
+import com.pap_shop.dto.UpdateProductRequest;
 import com.pap_shop.entity.Category;
 import com.pap_shop.entity.Product;
 import com.pap_shop.dto.AddProductRequest;
@@ -9,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
+import com.pap_shop.repository.StockEntryRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,8 +23,11 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProductService {
+
     ProductRepository productRepository;
     CategoryRepository categoryRepository;
+    StockEntryRepository stockEntryRepository;
+
 
     /**
      * Adds a new product using product data from a DTO.
@@ -83,5 +88,36 @@ public class ProductService {
      */
     public List<Product> getProductsByCategoryID(Integer ID) {
         return productRepository.findAllByCategoryID(ID);
+    }
+
+
+    public void updateProduct(Integer productId, UpdateProductRequest request) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        product.setName(request.getName());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
+        product.setStock(request.getStock());
+
+        if (request.getCategoryId() != null) {
+            Category category = categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new RuntimeException("Category not found"));
+            product.setCategory(category);
+        }
+
+        productRepository.save(product);
+    }
+
+    public void deleteProduct(Integer productId) {
+        if (!productRepository.existsById(productId)) {
+            throw new RuntimeException("Product not found");
+        }
+
+        // Xóa tất cả stock entries liên quan
+        stockEntryRepository.deleteByProductId(productId);
+
+        // Sau đó mới xóa sản phẩm
+        productRepository.deleteById(productId);
     }
 }
