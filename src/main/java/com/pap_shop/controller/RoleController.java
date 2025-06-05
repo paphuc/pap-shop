@@ -31,8 +31,8 @@ public class RoleController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<User> updateRoleById(@RequestBody UpdateRoleRequest request) {
-        User user = roleService.updateRoleUserByID(request.getUserId(), request.getRole_id());
-        return ResponseEntity.ok(user);
+    public ResponseEntity<String> updateRoleById(@RequestBody UpdateRoleRequest request) {
+        User user = roleService.updateRoleUserByID(request.getUser_id(), request.getRole_id());
+        return ResponseEntity.ok("Success!");
     }
 }
