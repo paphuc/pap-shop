@@ -109,10 +109,10 @@ public class UserService {
     public User updateUser(User updatedUser) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
+        String username = authentication.getName();
 
 
-        User existingUser = userRepository.findByEmail(email)
+        User existingUser = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
 
