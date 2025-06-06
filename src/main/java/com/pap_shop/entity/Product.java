@@ -68,6 +68,9 @@ public class Product {
      * The timestamp when the product was created.
      * This field is not updatable after the product is created.
      */
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", updatable = true)
     private Timestamp createdAt;
+
+    @Column(name = "sku", nullable = false, unique = true, length = 100)
+    private String sku;
 }

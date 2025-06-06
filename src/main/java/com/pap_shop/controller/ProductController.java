@@ -3,9 +3,14 @@ package com.pap_shop.controller;
 import com.pap_shop.entity.Product;
 import com.pap_shop.dto.AddProductRequest;
 import com.pap_shop.service.ProductService;
+import com.pap_shop.util.ProductExcelExporter;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 
+import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.Optional;
 
@@ -71,5 +76,19 @@ public class ProductController {
     public ResponseEntity<List<Product>> getProductByCategoryID(@PathVariable Integer categoryID) {
         List<Product> products = productService.getProductsByCategoryID(categoryID);
         return ResponseEntity.ok(products);
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<InputStreamResource> exportExcel() throws Exception {
+        List<Product> products = productService.getAllProducts();
+        ByteArrayInputStream in = ProductExcelExporter.export(products);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=products.xlsx");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(new InputStreamResource(in));
     }
 }

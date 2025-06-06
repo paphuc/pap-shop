@@ -41,7 +41,7 @@ public class StockEntry {
      * This field cannot be null.
      */
     @Column(nullable = false)
-    private Integer quantity;
+    private Integer stock;
 
     /**
      * The purchase price of the product at the time of entry.
