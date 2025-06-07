@@ -1,5 +1,7 @@
 package com.pap_shop.configuration;
 
+import com.pap_shop.util.CustomJwtAuthenticationConverter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,8 +26,9 @@ public class SecurityConfig {
     /**
      * Array of public endpoints that do not require authentication.
      */
-    private final String[] PUBLIC_ENDPOINTS = {"/api/auth/login",
-            "/api/auth/register"};
+    private final String[] PUBLIC_ENDPOINTS = {"/api/user/login"
+            ,"/api/user/register"
+            ,"/api/user/logout"};
 
     /**
      * JWT secret key injected from application properties.
@@ -33,6 +36,8 @@ public class SecurityConfig {
     @Value("${jwt.secretkey}")
     private String secretkey;
 
+    @Autowired
+    private CustomJwtAuthenticationConverter jwtAuthenticationConverter;
     /**
      * Configures the security filter chain for HTTP requests.
      *
@@ -44,8 +49,10 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
 
-        http.oauth2ResourceServer(oauth2 ->
-                oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder())));
+        http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> {
+            jwtConfigurer.decoder(jwtDecoder());
+            jwtConfigurer.jwtAuthenticationConverter(jwtAuthenticationConverter);
+        }));
 
         http.authorizeHttpRequests(request -> {
             for (String endpoint : PUBLIC_ENDPOINTS) {
@@ -55,6 +62,7 @@ public class SecurityConfig {
                     .hasAuthority("SCOPE_ADMIN");
             request.anyRequest().authenticated();
         });
+
         return http.build();
     }
 
