@@ -1,7 +1,9 @@
 package com.pap_shop.service;
 
+import com.pap_shop.entity.InvalidatedToken;
 import com.pap_shop.entity.Roles;
 import com.pap_shop.entity.User;
+import com.pap_shop.repository.InvalidatedTokenRepository;
 import com.pap_shop.repository.RoleRepository;
 import com.pap_shop.repository.UserRepository;
 import com.pap_shop.util.JwtUtil;
@@ -9,10 +11,13 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.time.Instant;
 import java.util.Optional;
 
 @Service
@@ -23,6 +28,8 @@ public class UserService {
     UserRepository userRepository;
     RoleRepository roleRepository;
     BCryptPasswordEncoder passwordEncoder;
+    InvalidatedTokenRepository invalidatedTokenRepo;
+    JwtDecoder jwtDecoder;
 
 
     /**
@@ -135,5 +142,26 @@ public class UserService {
         return userRepository.save(existingUser);
     }
 
+    /**
+     * Logs out a user by invalidating their current JWT token.
+     *
+     * @param authHeader the Authorization header (must contain Bearer token)
+     */
+    public void logout(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("Invalid Authorization header");
+        }
+
+        String token = authHeader.substring(7);
+        Jwt jwt = jwtDecoder.decode(token);
+
+        String jti = jwt.getId();
+        Instant exp = jwt.getExpiresAt();
+
+        if (!invalidatedTokenRepo.existsByJti(jti)) {
+            InvalidatedToken invalidatedToken = new InvalidatedToken(jti, exp);
+            invalidatedTokenRepo.save(invalidatedToken);
+        }
+    }
 
 }
