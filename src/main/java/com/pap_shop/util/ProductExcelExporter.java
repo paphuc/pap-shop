@@ -10,12 +10,16 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class ProductExcelExporter {
 
     public static ByteArrayInputStream export(List<Product> products) throws IOException {
         String[] columns = {"ID", "Name", "Category", "Description", "Price", "Stock", "Created At"};
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
 
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             Sheet sheet = workbook.createSheet("Products");
@@ -38,7 +42,16 @@ public class ProductExcelExporter {
                 row.createCell(3).setCellValue(product.getDescription());
                 row.createCell(4).setCellValue(product.getPrice().doubleValue());
                 row.createCell(5).setCellValue(product.getStock());
-                row.createCell(6).setCellValue(product.getCreatedAt().toString());
+
+                LocalDateTime createdAt = product.getCreatedAt();
+
+                if (createdAt != null) {
+
+                    String formattedDate = createdAt.format(formatter);
+                    row.createCell(6).setCellValue(formattedDate);
+                } else {
+                    row.createCell(6).setCellValue("");
+                }
             }
 
             workbook.write(out);

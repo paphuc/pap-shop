@@ -1,7 +1,11 @@
 package com.pap_shop.entity;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 
@@ -16,6 +20,7 @@ import javax.persistence.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class User {
 
     /**
@@ -57,8 +62,9 @@ public class User {
      * The timestamp when the customer record was created.
      * This field is not updatable.
      */
-    @Column(name = "created_at", updatable = true)
-    private Timestamp createdAt;
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 
     /**
      * The password of customer's account
