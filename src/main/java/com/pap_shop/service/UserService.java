@@ -135,5 +135,8 @@ public class UserService {
         return userRepository.save(existingUser);
     }
 
+    public Optional<User> getUserById(Integer id){
+        return userRepository.findById(id);
+    }
 
 }
