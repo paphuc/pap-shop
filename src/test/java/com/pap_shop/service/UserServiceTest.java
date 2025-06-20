@@ -10,6 +10,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -39,5 +41,27 @@ public class UserServiceTest {
         //Assert
         assertEquals("hehe",result.get().getName());
         verify(userRepository, times(1)).findById(1);
+    }
+
+    @Test
+    void testGetAllUsers(){
+        //Arrange
+        User user1 = new User();
+        user1.setName("Pham Anh A");
+        User user2 = new User();
+        user2.setName("Nguyen Van B");
+
+        List<User> users = Arrays.asList(user1, user2);
+
+        when(userRepository.findAll()).thenReturn(users);
+
+        //Act
+        List<User> result = userService.getAllUsers();
+
+        //Assert
+        assertEquals(2,result.size());
+        assertEquals("Pham Anh A",result.get(0).getName());
+        assertEquals("Nguyen Van B",result.get(1).getName());
+        verify(userRepository,times(1)).findAll();
     }
 }

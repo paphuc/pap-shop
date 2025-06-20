@@ -5,6 +5,7 @@ import com.pap_shop.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -27,4 +28,7 @@ public class UserController {
         Optional<User> user = userService.getUserById(ID);
         return user.map(ResponseEntity::ok).orElseGet(()->ResponseEntity.notFound().build());
     }
+
+    @GetMapping
+    public List<User> getAllUsers(){ return userService.getAllUsers();}
 }
