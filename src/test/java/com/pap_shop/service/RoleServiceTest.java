@@ -72,20 +72,20 @@ public class RoleServiceTest {
 
     @Test
     void updateRoleUserByID_RoleNotFound(){
-        int user_id = 1;
-        int role_id = 1;
+        int userId = 1;
+        int roleId = 1;
 
         User user = new User();
-        user.setId(user_id);
+        user.setId(userId);
 
-        when(userRepository.findById(user_id)).thenReturn(Optional.of(user));
-        when(roleRepository.findByRoleId(role_id)).thenReturn(Optional.empty());
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(roleRepository.findByRoleId(roleId)).thenReturn(Optional.empty());
 
         Exception exception = assertThrows(RuntimeException.class,
-                () -> roleService.updateRoleUserByID(user_id,role_id));
+                () -> roleService.updateRoleUserByID(userId,roleId));
 
         assertEquals("Role not exist",exception.getMessage());
-        verify(userRepository).findById(user_id);
-        verify(roleRepository).findByRoleId(role_id);
+        verify(userRepository).findById(userId);
+        verify(roleRepository).findByRoleId(roleId);
     }
 }

@@ -10,6 +10,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateRoleRequest {
-    private Integer user_id;
-    private Integer role_id;
+    private Integer userId;
+    private Integer roleId;
 }
