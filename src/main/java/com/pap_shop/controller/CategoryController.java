@@ -44,4 +44,16 @@ public class CategoryController {
     public List<Category> getAllCategory() {
         return categoryService.getAllCategory();
     }
+
+    /**
+     * Retrieves a specific category by ID.
+     *
+     * @param id the ID of the category to retrieve
+     * @return the category with the specified ID
+     */
+    @GetMapping("/{id}")
+    public Category getCategoryById(@PathVariable Integer id) {
+        return categoryService.getCategoryById(id);
+    }
+
 }
