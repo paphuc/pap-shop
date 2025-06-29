@@ -15,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -71,4 +72,30 @@ public class UserServiceTest {
         assertEquals("encodedPassword", testUser.getPassword());
         assertEquals(userRole, testUser.getRole());
     }
+
+    @Test
+    void testRegister_FailsWhenEmailInUse() {
+        // Arrange
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(new User()));
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            userService.register(testUser);
+        });
+        assertEquals("Email already in use", exception.getMessage());
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void testRegister_FailsWhenPasswordIsTooShort() {
+        // Arrange
+        testUser.setPassword("123");
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            userService.register(testUser);
+        });
+        assertEquals("Password must be at least 6 characters", exception.getMessage());
+    }
+
 }
