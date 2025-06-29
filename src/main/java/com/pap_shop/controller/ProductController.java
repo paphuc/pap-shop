@@ -78,6 +78,19 @@ public class ProductController {
         return ResponseEntity.ok(products);
     }
 
+    /**
+     * Deletes a product by its ID.
+     *
+     * @param productId the ID of the product to delete
+     * @return a ResponseEntity containing a success message if the product is deleted successfully
+     */
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<?> deleteProduct(@PathVariable Integer productId) {
+        productService.deleteProduct(productId);
+        return ResponseEntity.ok("Product deleted successfully");
+    }
+
+
     @GetMapping("/export")
     public ResponseEntity<InputStreamResource> exportExcel() throws Exception {
         List<Product> products = productService.getAllProducts();

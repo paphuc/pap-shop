@@ -84,4 +84,11 @@ public class ProductService {
     public List<Product> getProductsByCategoryID(Integer ID) {
         return productRepository.findAllByCategoryID(ID);
     }
+
+    public void deleteProduct(Integer productId) {
+        if (!productRepository.existsById(productId)) {
+            throw new RuntimeException("Product not found");
+        }
+        productRepository.deleteById(productId);
+    }
 }
