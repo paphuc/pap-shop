@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -115,6 +116,7 @@ public class UserService {
         User existingUser = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        existingUser.setUpdateAt(LocalDateTime.now());
 
         if (updatedUser.getName() != null) {
             existingUser.setName(updatedUser.getName());

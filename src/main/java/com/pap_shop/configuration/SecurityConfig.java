@@ -26,8 +26,8 @@ public class SecurityConfig {
      * Array of public endpoints that do not require authentication.
      */
     private final Map<String, HttpMethod> PUBLIC_ENDPOINTS = Map.of(
-            "/api/auth/login", HttpMethod.POST,
-            "/api/auth/register", HttpMethod.POST,
+            "/api/user/login", HttpMethod.POST,
+            "/api/user/register", HttpMethod.POST,
             "/api/role", HttpMethod.GET,
             "/api/products",HttpMethod.GET
     );
