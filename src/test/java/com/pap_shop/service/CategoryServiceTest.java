@@ -10,8 +10,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -59,5 +60,39 @@ public class CategoryServiceTest {
         assertEquals("Electronics", result.get(0).getName());
         assertEquals("Clothing", result.get(1).getName());
         verify(categoryRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testGetCategoryById_whenFound_thenReturnCategory() {
+        // Arrange
+        Category mockCategory = new Category();
+        mockCategory.setID(1);
+        mockCategory.setName("Điện tử");
+
+        when(categoryRepository.findById(1)).thenReturn(Optional.of(mockCategory));
+
+        // Act
+        Category result = categoryService.getCategoryById(1);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.getID());
+        assertEquals("Điện tử", result.getName());
+
+        verify(categoryRepository, times(1)).findById(1);
+    }
+
+    @Test
+    void testGetCategoryById_whenNotFound_thenThrowException() {
+        // Arrange
+        when(categoryRepository.findById(999)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        RuntimeException ex = assertThrows(RuntimeException.class, () -> {
+            categoryService.getCategoryById(999);
+        });
+
+        assertEquals("Category not found with id: 999", ex.getMessage());
+        verify(categoryRepository, times(1)).findById(999);
     }
 }

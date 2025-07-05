@@ -3,13 +3,11 @@ package com.pap_shop.controller;
 
 import com.pap_shop.dto.UpdateRoleRequest;
 import com.pap_shop.entity.Roles;
-import com.pap_shop.entity.User;
 import com.pap_shop.service.RoleService;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.management.relation.Role;
 import java.util.List;
 
 @RestController
@@ -31,8 +29,8 @@ public class RoleController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<User> updateRoleById(@RequestBody UpdateRoleRequest request) {
-        User user = roleService.updateRoleUserByID(request.getUserId(), request.getRole_id());
-        return ResponseEntity.ok(user);
+    public ResponseEntity<String> updateRoleById(@RequestBody UpdateRoleRequest request) {
+        roleService.updateRoleUserByID(request.getUserId(), request.getRoleId());
+        return ResponseEntity.ok("Success!");
     }
 }

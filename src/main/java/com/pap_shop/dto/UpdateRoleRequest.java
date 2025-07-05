@@ -11,5 +11,5 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UpdateRoleRequest {
     private Integer userId;
-    private Integer role_id;
+    private Integer roleId;
 }
