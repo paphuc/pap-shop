@@ -94,4 +94,14 @@ public class ProductService {
 //        stockEntryRepository.deleteByProductId(productId);
 //        productRepository.deleteById(productId);
 //    }
+
+    public void exportProduct(Integer productID, Integer quantity){
+        Product product = productRepository.findById(productID)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+        if(product.getStock() < quantity){
+            throw  new RuntimeException("Not enough stock to export");
+        }
+        product.setStock(product.getStock() - quantity);
+        productRepository.save(product);
+    }
 }

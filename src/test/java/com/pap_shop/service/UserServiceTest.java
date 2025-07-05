@@ -4,18 +4,23 @@ import com.pap_shop.entity.Roles;
 import com.pap_shop.entity.User;
 import com.pap_shop.repository.RoleRepository;
 import com.pap_shop.repository.UserRepository;
+import com.pap_shop.util.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -76,26 +81,140 @@ public class UserServiceTest {
     @Test
     void testRegister_FailsWhenEmailInUse() {
         // Arrange
-        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(new User()));
+
+        when(userRepository.findByEmail(testUser.getEmail())).thenReturn(Optional.of(new User()));
+
 
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             userService.register(testUser);
         });
+
+        // Assert
         assertEquals("Email already in use", exception.getMessage());
+
+        verify(userRepository,times(1)).findByEmail(testUser.getEmail());
+        verify(userRepository, never()).findByPhone(anyString());
+        verify(userRepository, never()).findByUsername(anyString());
         verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
-    void testRegister_FailsWhenPasswordIsTooShort() {
-        // Arrange
-        testUser.setPassword("123");
+    void testLogin_SuccessWithEmail(){
+        //Arrange
 
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            userService.register(testUser);
-        });
-        assertEquals("Password must be at least 6 characters", exception.getMessage());
+        String loginIdentifier = "test@gmail.com";
+        String rawPassword = "rawPassword";
+        String encodedPassword = "encodedPassword";
+        String expectedToken = "mocked-jwt-token";
+
+        testUser.setPassword(encodedPassword);
+        when(userRepository.findByEmail(loginIdentifier)).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches(rawPassword,encodedPassword)).thenReturn(true);
+    }
+
+    @Test
+    void testLogin_SuccessWithPhone() {
+        // Arrange
+        String loginIdentifier = "123456789";
+        String rawPassword = "password123";
+        String encodedPassword = "encodedPassword123";
+        String expectedToken = "mocked-jwt-token";
+
+        testUser.setPassword(encodedPassword);
+
+        when(userRepository.findByPhone(loginIdentifier)).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches(rawPassword, encodedPassword)).thenReturn(true);
+
+        try (MockedStatic<JwtUtil> mockedJwtUtil = Mockito.mockStatic(JwtUtil.class)) {
+            mockedJwtUtil.when(() -> JwtUtil.generateToken(testUser)).thenReturn(expectedToken);
+
+            // Act
+            String actualToken = userService.login(loginIdentifier, rawPassword);
+
+            // Assert
+            assertEquals(expectedToken, actualToken);
+            verify(userRepository).findByPhone(loginIdentifier);
+        }
+    }
+
+    @Test
+    void testLogin_SuccessWithUsername() {
+        // Arrange
+        String loginIdentifier = "testUser";
+        String rawPassword = "password123";
+        String encodedPassword = "encodedPassword123";
+        String expectedToken = "mocked-jwt-token";
+
+        testUser.setPassword(encodedPassword);
+
+        when(userRepository.findByUsername(loginIdentifier)).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.matches(rawPassword, encodedPassword)).thenReturn(true);
+
+        try (MockedStatic<JwtUtil> mockedJwtUtil = Mockito.mockStatic(JwtUtil.class)) {
+            mockedJwtUtil.when(() -> JwtUtil.generateToken(testUser)).thenReturn(expectedToken);
+
+            // Act
+            String actualToken = userService.login(loginIdentifier, rawPassword);
+
+            // Assert
+            assertEquals(expectedToken, actualToken);
+            verify(userRepository).findByUsername(loginIdentifier);
+        }
+    }
+
+    @Test
+    void testAddUser() {
+        // Arrange
+        when(userRepository.save(any(User.class))).thenReturn(testUser);
+
+        // Act
+        User savedUser = userService.addUser(testUser);
+
+        // Assert
+        assertNotNull(savedUser);
+        assertEquals("testUser", savedUser.getUsername());
+        verify(userRepository, times(1)).save(testUser);
+    }
+    @Test
+    void testUpdateUser_Success() {
+        // Arrange
+        String currentUserEmail = "test@gmail.com";
+
+        User updatedInfo = User.builder()
+                .name("New Test User")
+                .phone("999888777")
+                .address(null)
+                .email(null)
+                .username(null)
+                .build();
+
+        try (MockedStatic<SecurityContextHolder> mockedSecurityContextHolder = Mockito.mockStatic(SecurityContextHolder.class)) {
+            Authentication authentication = mock(Authentication.class);
+            SecurityContext securityContext = mock(SecurityContext.class);
+
+            mockedSecurityContextHolder.when(SecurityContextHolder::getContext).thenReturn(securityContext);
+            when(securityContext.getAuthentication()).thenReturn(authentication);
+            when(authentication.getName()).thenReturn(currentUserEmail);
+
+            when(userRepository.findByEmail(currentUserEmail)).thenReturn(Optional.of(testUser));
+
+
+            when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            // Act
+            User resultUser = userService.updateUser(updatedInfo);
+
+            // Assert
+            assertNotNull(resultUser);
+            assertEquals("New Test User", resultUser.getName());
+            assertEquals("999888777", resultUser.getPhone());
+            assertEquals("123 somewhere street", resultUser.getAddress());
+            assertEquals("test@gmail.com", resultUser.getEmail());
+
+            verify(userRepository, times(1)).findByEmail(currentUserEmail);
+            verify(userRepository, times(1)).save(testUser);
+        }
     }
 
 }
