@@ -14,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -110,12 +111,13 @@ public class UserService {
     public User updateUser(User updatedUser) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
+        String username = authentication.getName();
 
 
-        User existingUser = userRepository.findByEmail(email)
+        User existingUser = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        existingUser.setUpdateAt(LocalDateTime.now());
 
         if (updatedUser.getName() != null) {
             existingUser.setName(updatedUser.getName());
