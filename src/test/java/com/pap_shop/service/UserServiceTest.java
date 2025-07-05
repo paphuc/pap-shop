@@ -18,6 +18,8 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -98,20 +100,34 @@ public class UserServiceTest {
         verify(userRepository, never()).findByUsername(anyString());
         verify(userRepository, never()).save(any(User.class));
     }
-
     @Test
-    void testLogin_SuccessWithEmail(){
-        //Arrange
-
-        String loginIdentifier = "test@gmail.com";
-        String rawPassword = "rawPassword";
-        String encodedPassword = "encodedPassword";
+    void testLogin_SuccessWithEmail() {
+        // Arrange
+        String loginIdentifier = "test@example.com";
+        String rawPassword = "password123";
+        String encodedPassword = "encodedPassword123";
         String expectedToken = "mocked-jwt-token";
 
+
         testUser.setPassword(encodedPassword);
+
         when(userRepository.findByEmail(loginIdentifier)).thenReturn(Optional.of(testUser));
-        when(passwordEncoder.matches(rawPassword,encodedPassword)).thenReturn(true);
+        when(passwordEncoder.matches(rawPassword, encodedPassword)).thenReturn(true);
+
+        try (MockedStatic<JwtUtil> mockedJwtUtil = Mockito.mockStatic(JwtUtil.class)) {
+            mockedJwtUtil.when(() -> JwtUtil.generateToken(testUser)).thenReturn(expectedToken);
+
+            // Act
+            String actualToken = userService.login(loginIdentifier, rawPassword);
+
+            // Assert
+            assertEquals(expectedToken, actualToken);
+
+            verify(userRepository).findByEmail(loginIdentifier);
+            verify(passwordEncoder).matches(rawPassword, encodedPassword);
+        }
     }
+
 
     @Test
     void testLogin_SuccessWithPhone() {
@@ -217,4 +233,42 @@ public class UserServiceTest {
         }
     }
 
+    @Test
+    void testFindUserById(){
+        //Arrange
+        User user = new User();
+        user.setId(1);
+        user.setName("hehe");
+
+        when(userRepository.findById(1)).thenReturn(Optional.of(user));
+
+        //Act
+        Optional<User> result =  userService.getUserById(1);
+
+        //Assert
+        assertEquals("hehe",result.get().getName());
+        verify(userRepository, times(1)).findById(1);
+    }
+
+    @Test
+    void testGetAllUsers(){
+        //Arrange
+        User user1 = new User();
+        user1.setName("Pham Anh A");
+        User user2 = new User();
+        user2.setName("Nguyen Van B");
+
+        List<User> users = Arrays.asList(user1, user2);
+
+        when(userRepository.findAll()).thenReturn(users);
+
+        //Act
+        List<User> result = userService.getAllUsers();
+
+        //Assert
+        assertEquals(2,result.size());
+        assertEquals("Pham Anh A",result.get(0).getName());
+        assertEquals("Nguyen Van B",result.get(1).getName());
+        verify(userRepository,times(1)).findAll();
+    }
 }

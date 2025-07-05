@@ -5,7 +5,6 @@ import com.pap_shop.entity.Product;
 import com.pap_shop.dto.AddProductRequest;
 import com.pap_shop.repository.CategoryRepository;
 import com.pap_shop.repository.ProductRepository;
-//import com.pap_shop.repository.StockEntryRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -24,7 +23,6 @@ import java.util.Optional;
 public class ProductService {
     ProductRepository productRepository;
     CategoryRepository categoryRepository;
-//    StockEntryRepository stockEntryRepository;
 
     /**
      * Adds a new product using product data from a DTO.
@@ -86,22 +84,11 @@ public class ProductService {
     public List<Product> getProductsByCategoryID(Integer ID) {
         return productRepository.findAllByCategoryID(ID);
     }
-//
-//    public void deleteProduct(Integer productId) {
-//        if (!productRepository.existsById(productId)) {
-//            throw new RuntimeException("Product not found");
-//        }
-//        stockEntryRepository.deleteByProductId(productId);
-//        productRepository.deleteById(productId);
-//    }
 
-    public void exportProduct(Integer productID, Integer quantity){
-        Product product = productRepository.findById(productID)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
-        if(product.getStock() < quantity){
-            throw  new RuntimeException("Not enough stock to export");
+    public void deleteProduct(Integer productId) {
+        if (!productRepository.existsById(productId)) {
+            throw new RuntimeException("Product not found");
         }
-        product.setStock(product.getStock() - quantity);
-        productRepository.save(product);
+        productRepository.deleteById(productId);
     }
 }
