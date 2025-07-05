@@ -2,6 +2,7 @@ package com.pap_shop.service;
 
 import com.pap_shop.entity.Roles;
 import com.pap_shop.entity.User;
+import com.pap_shop.exception.ResourceNotFoundException;
 import com.pap_shop.repository.RoleRepository;
 import com.pap_shop.repository.UserRepository;
 import com.pap_shop.util.JwtUtil;
@@ -88,7 +89,7 @@ public class UserService {
             optionalUser = userRepository.findByUsername(emailOrPhoneOrUsername);
         }
 
-        User user = optionalUser.orElseThrow(() -> new RuntimeException("User not found"));
+        User user = optionalUser.orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
             throw new RuntimeException("Invalid credentials");
@@ -115,7 +116,7 @@ public class UserService {
 
 
         User existingUser = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         existingUser.setUpdateAt(LocalDateTime.now());
 
