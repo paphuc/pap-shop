@@ -1,4 +1,4 @@
-package com.pap_shop.entity;
+package com.pap_shop.enums;
 
 /**
  * Enum representing the possible statuses of an order.

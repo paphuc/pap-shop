@@ -42,4 +42,6 @@ public class AddProductRequest {
      * The number of items available in stock for this product.
      */
     private Integer stock;
+
+    private String sku;
 }

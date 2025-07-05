@@ -3,6 +3,8 @@ package com.pap_shop.entity;
 import java.sql.Timestamp;
 import java.util.List;
 import java.math.BigDecimal;
+
+import com.pap_shop.enums.OrderStatus;
 import lombok.*;
 
 import javax.persistence.*;
