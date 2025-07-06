@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.List;
+import java.time.LocalDateTime;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -116,12 +118,13 @@ public class UserService {
     public User updateUser(User updatedUser) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
+        String username = authentication.getName();
 
 
-        User existingUser = userRepository.findByEmail(email)
+        User existingUser = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        existingUser.setUpdateAt(LocalDateTime.now());
 
         if (updatedUser.getName() != null) {
             existingUser.setName(updatedUser.getName());
@@ -162,6 +165,13 @@ public class UserService {
             InvalidatedToken invalidatedToken = new InvalidatedToken(jti, exp);
             invalidatedTokenRepo.save(invalidatedToken);
         }
+    }
+    public Optional<User> getUserById(Integer id){
+        return userRepository.findById(id);
+    }
+
+    public List<User> getAllUsers(){
+        return userRepository.findAll();
     }
 
 }

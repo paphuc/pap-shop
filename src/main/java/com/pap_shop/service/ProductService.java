@@ -42,7 +42,7 @@ public class ProductService {
         product.setCategory(category);
         product.setStock(addProductRequest.getStock());
         product.setDescription(addProductRequest.getDescription());
-
+        product.setSku(addProductRequest.getSku());
         return productRepository.save(product);
     }
 

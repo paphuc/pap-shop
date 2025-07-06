@@ -1,7 +1,10 @@
 package com.pap_shop.entity;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 
@@ -57,7 +60,8 @@ public class User {
      * The timestamp when the customer record was created.
      * This field is not updatable.
      */
-    @Column(name = "created_at", updatable = true)
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private Timestamp createdAt;
 
     /**
@@ -72,4 +76,7 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "id_role",nullable = false)
     private Roles role;
+
+    @Column(name = "update_at")
+    private LocalDateTime updateAt;
 }

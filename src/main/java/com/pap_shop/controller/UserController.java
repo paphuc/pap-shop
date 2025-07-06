@@ -1,12 +1,15 @@
 package com.pap_shop.controller;
 
 import com.pap_shop.dto.LoginRequest;
+import com.pap_shop.dto.UserRequest;
 import com.pap_shop.entity.User;
 import com.pap_shop.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/user")
@@ -18,9 +21,14 @@ public class UserController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<User> updateUser(@RequestBody User updatedUser) {
+    public ResponseEntity<UserRequest> updateUser(@RequestBody User updatedUser) {
         User user = userService.updateUser(updatedUser);
-        return ResponseEntity.ok(user);
+        UserRequest userRequest = new UserRequest(user.getId(),
+                                                    user.getName(),
+                                                    user.getEmail(),
+                                                    user.getPhone(),
+                                                    user.getAddress(),user.getRole().getRoleId());
+        return ResponseEntity.ok(userRequest);
     }
 
     /**
@@ -45,6 +53,15 @@ public class UserController {
     public String login(@RequestBody LoginRequest request) {
         return userService.login(request.getEmailOrPhoneOrUsername(), request.getPassword());
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable("id") Integer ID){
+        Optional<User> user = userService.getUserById(ID);
+        return user.map(ResponseEntity::ok).orElseGet(()->ResponseEntity.notFound().build());
+    }
+
+    @GetMapping
+    public List<User> getAllUsers(){ return userService.getAllUsers();}
 
     /**
      * Logout hiện tại người dùng bằng cách vô hiệu hóa JWT token.

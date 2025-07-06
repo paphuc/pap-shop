@@ -18,6 +18,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.crypto.spec.SecretKeySpec;
+import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
@@ -26,10 +27,19 @@ public class SecurityConfig {
     /**
      * Array of public endpoints that do not require authentication.
      */
-    private final String[] PUBLIC_ENDPOINTS = {"/api/user/login"
-            ,"/api/user/register"
-            ,"/api/user/logout"};
+    private final Map<String, HttpMethod> PUBLIC_ENDPOINTS = Map.of(
+            "/api/user/login", HttpMethod.POST,
+            "/api/user/register", HttpMethod.POST,
+            "/api/role", HttpMethod.GET,
+            "/api/products",HttpMethod.GET,
+            "/api/user/logout",HttpMethod.POST
+    );
 
+    private final Map<String, HttpMethod> ADMIN_ENDPOINTS = Map.of(
+            "/api/role", HttpMethod.POST,
+            "/api/category", HttpMethod.POST,
+            "/api/role/update", HttpMethod.PUT
+    );
     /**
      * JWT secret key injected from application properties.
      */
@@ -55,11 +65,16 @@ public class SecurityConfig {
         }));
 
         http.authorizeHttpRequests(request -> {
-            for (String endpoint : PUBLIC_ENDPOINTS) {
-                request.requestMatchers(new AntPathRequestMatcher(endpoint, HttpMethod.POST.name())).permitAll();
+
+            for (Map.Entry<String, HttpMethod> entry : PUBLIC_ENDPOINTS.entrySet()) {
+                request.requestMatchers(new AntPathRequestMatcher(entry.getKey(), entry.getValue().name()))
+                        .permitAll();
             }
-            request.requestMatchers(new AntPathRequestMatcher("/api/role", HttpMethod.POST.name()))
-                    .hasAuthority("SCOPE_ADMIN");
+
+            for (Map.Entry<String, HttpMethod> entry : ADMIN_ENDPOINTS.entrySet()) {
+                request.requestMatchers(new AntPathRequestMatcher(entry.getKey(), entry.getValue().name()))
+                        .hasAuthority("SCOPE_ADMIN");
+            }
             request.anyRequest().authenticated();
         });
 
