@@ -7,6 +7,7 @@ import io.jsonwebtoken.security.Keys;
 
 import java.util.Date;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public class JwtUtil {
     private static final String SECRET_KEY = "fh8d+sYvG+GDpR1ibC0WMsD7q40pTwc4x1d5dTZ1t9nO83ge46CI5JNhbpB9bM9W";
@@ -20,7 +21,7 @@ public class JwtUtil {
                 .setId(jti)
                 .claim("scope", user.getRole().getRole())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 86400000))
+                .setExpiration(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1)))
                 .signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()), SignatureAlgorithm.HS256)
                 .compact();
     }
