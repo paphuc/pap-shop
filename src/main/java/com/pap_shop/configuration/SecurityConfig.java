@@ -28,6 +28,8 @@ public class SecurityConfig {
     private final Map<String, HttpMethod> PUBLIC_ENDPOINTS = Map.of(
             "/api/user/login", HttpMethod.POST,
             "/api/user/register", HttpMethod.POST,
+            "/api/user/forgot-password", HttpMethod.POST,
+            "/api/user/reset-password", HttpMethod.PUT,
             "/api/role", HttpMethod.GET,
             "/api/products",HttpMethod.GET
     );
@@ -63,6 +65,9 @@ public class SecurityConfig {
                 request.requestMatchers(new AntPathRequestMatcher(entry.getKey(), entry.getValue().name()))
                         .permitAll();
             }
+            
+            request.requestMatchers(new AntPathRequestMatcher("/api/user/reset-password", HttpMethod.PUT.name()))
+                    .permitAll();
 
             for (Map.Entry<String, HttpMethod> entry : ADMIN_ENDPOINTS.entrySet()) {
                 request.requestMatchers(new AntPathRequestMatcher(entry.getKey(), entry.getValue().name()))
