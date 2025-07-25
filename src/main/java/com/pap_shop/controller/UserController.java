@@ -1,5 +1,6 @@
 package com.pap_shop.controller;
 
+import com.pap_shop.dto.ChangePasswordRequest;
 import com.pap_shop.dto.LoginRequest;
 import com.pap_shop.dto.UserRequest;
 import com.pap_shop.entity.User;
@@ -61,4 +62,16 @@ public class UserController {
 
     @GetMapping
     public List<User> getAllUsers(){ return userService.getAllUsers();}
+
+    /**
+     * Change authenticated user's password.
+     *
+     * @param request the change password request containing old password, new password and confirm password
+     * @return success message if password is changed successfully
+     */
+    @PutMapping("/update/password")
+    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequest request) {
+        userService.changePassword(request.getOldPassword(), request.getNewPassword(), request.getConfirmNewPassword());
+        return ResponseEntity.ok("Password updated successfully");
+    }
 }

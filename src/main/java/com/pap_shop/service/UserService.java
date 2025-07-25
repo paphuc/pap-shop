@@ -146,4 +146,35 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    /**
+     * Changes the authenticated user's password after validating the old password.
+     *
+     * @param oldPassword the current password for verification
+     * @param newPassword the new password to set
+     * @param confirmNewPassword confirmation of the new password
+     * @throws RuntimeException if old password is incorrect, passwords don't match, or new password is too short
+     */
+    public void changePassword(String oldPassword, String newPassword, String confirmNewPassword) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new RuntimeException("Old password is incorrect");
+        }
+        
+        if (!newPassword.equals(confirmNewPassword)) {
+            throw new RuntimeException("New passwords do not match");
+        }
+        
+        if (newPassword.length() < 6) {
+            throw new RuntimeException("New password must be at least 6 characters");
+        }
+        
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setUpdateAt(LocalDateTime.now());
+        userRepository.save(user);
+    }
 }
