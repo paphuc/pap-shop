@@ -13,6 +13,6 @@ import java.time.LocalDateTime;
 public class ErrorResponse {
     private int statusCode;
     private String message;
-    private String details;
+    private String reportContact;
     private LocalDateTime timestamp;
 }

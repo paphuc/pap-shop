@@ -20,10 +20,16 @@ import java.time.LocalDateTime;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+
     /**
      * Logger instance for logging error details, particularly for unexpected exceptions.
      */
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    
+    /**
+     * Contact information for bug reports.
+     */
+    private static final String BUG_REPORT_CONTACT = "For bug reports, contact: mail to :duyp87052@gmail.com";
 
     /**
      * Handles {@link ResourceNotFoundException}.
@@ -38,7 +44,7 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
                 exception.getMessage(),
-                request.getDescription(false),
+                BUG_REPORT_CONTACT,
                 LocalDateTime.now()
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
@@ -58,7 +64,7 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
                 exception.getMessage(),
-                request.getDescription(false),
+                BUG_REPORT_CONTACT,
                 LocalDateTime.now()
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
@@ -83,8 +89,8 @@ public class GlobalExceptionHandler {
         // Create a generic error response to avoid leaking implementation details to the client
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "An unexpected internal server error occurred.", // Generic message for the client
-                request.getDescription(false),
+                "An unexpected internal server error occurred.",
+                BUG_REPORT_CONTACT,
                 LocalDateTime.now()
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
