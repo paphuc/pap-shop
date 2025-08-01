@@ -2,6 +2,7 @@ package com.pap_shop.controller;
 
 import com.pap_shop.entity.Product;
 import com.pap_shop.dto.AddProductRequest;
+import com.pap_shop.dto.UpdateProductRequest;
 import com.pap_shop.service.ProductService;
 import com.pap_shop.util.ProductExcelExporter;
 import org.springframework.core.io.InputStreamResource;
@@ -103,5 +104,18 @@ public class ProductController {
                 .headers(headers)
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(new InputStreamResource(in));
+    }
+
+    /**
+     * Updates a product by its SKU.
+     *
+     * @param sku the SKU of the product to update
+     * @param updateRequest the data transfer object containing updated product information
+     * @return a ResponseEntity containing the updated product
+     */
+    @PutMapping("/update/{sku}")
+    public ResponseEntity<Product> updateProductBySku(@PathVariable String sku, @RequestBody UpdateProductRequest updateRequest) {
+        Product updatedProduct = productService.updateProductBySku(sku, updateRequest);
+        return ResponseEntity.ok(updatedProduct);
     }
 }
