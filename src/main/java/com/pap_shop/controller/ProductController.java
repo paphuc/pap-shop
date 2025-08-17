@@ -4,14 +4,18 @@ import com.pap_shop.entity.Product;
 import com.pap_shop.dto.AddProductRequest;
 import com.pap_shop.dto.UpdateProductRequest;
 import com.pap_shop.service.ProductService;
+import com.pap_shop.service.ProductImportService;
 import com.pap_shop.util.ProductExcelExporter;
+import com.pap_shop.util.ProductExcelTemplate;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.ResponseEntity;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,14 +27,16 @@ import java.util.Optional;
 @RequestMapping("/api/products")
 public class ProductController {
     private final ProductService productService;
+    private final ProductImportService productImportService;
 
     /**
      * Constructor to inject ProductService.
      *
      * @param productService the service used for product operations
      */
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, ProductImportService productImportService) {
         this.productService = productService;
+        this.productImportService = productImportService;
     }
 
     /**
@@ -117,5 +123,34 @@ public class ProductController {
     public ResponseEntity<Product> updateProductBySku(@PathVariable String sku, @RequestBody UpdateProductRequest updateRequest) {
         Product updatedProduct = productService.updateProductBySku(sku, updateRequest);
         return ResponseEntity.ok(updatedProduct);
+    }
+
+    @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> importExcel(@RequestParam("file") MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            return ResponseEntity.badRequest().body("Please select a file to upload");
+        }
+
+        try {
+            List<Product> importedProducts = productImportService.importProductsFromExcel(file);
+            return ResponseEntity.ok("Imported " + importedProducts.size() + " products successfully");
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().body("Error reading Excel file: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error importing products: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/template")
+    public ResponseEntity<InputStreamResource> downloadTemplate() throws IOException {
+        ByteArrayInputStream template = ProductExcelTemplate.generateTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=product-import-template.xlsx");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(new InputStreamResource(template));
     }
 }
