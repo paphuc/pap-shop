@@ -1,6 +1,9 @@
 package com.pap_shop.controller;
 
+import com.pap_shop.dto.ChangePasswordRequest;
+import com.pap_shop.dto.ForgotPasswordRequest;
 import com.pap_shop.dto.LoginRequest;
+import com.pap_shop.dto.ResetPasswordRequest;
 import com.pap_shop.dto.UserRequest;
 import com.pap_shop.entity.User;
 import com.pap_shop.service.UserService;
@@ -61,4 +64,40 @@ public class UserController {
 
     @GetMapping
     public List<User> getAllUsers(){ return userService.getAllUsers();}
+
+    /**
+     * Change authenticated user's password.
+     *
+     * @param request the change password request containing old password, new password and confirm password
+     * @return success message if password is changed successfully
+     */
+    @PutMapping("/update/password")
+    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequest request) {
+        userService.changePassword(request.getOldPassword(), request.getNewPassword(), request.getConfirmNewPassword());
+        return ResponseEntity.ok("Password updated successfully");
+    }
+
+    /**
+     * Initiates password reset process by sending reset email.
+     *
+     * @param request the forgot password request containing email
+     * @return success message
+     */
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+        userService.forgotPassword(request.getEmail());
+        return ResponseEntity.ok("Password reset link sent to your email");
+    }
+
+    /**
+     * Resets user password using reset token.
+     *
+     * @param request the reset password request containing token and new password
+     * @return success message
+     */
+    @PutMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
+        userService.resetPassword(request.getToken(), request.getNewPassword(), request.getConfirmPassword());
+        return ResponseEntity.ok("Password reset successfully");
+    }
 }

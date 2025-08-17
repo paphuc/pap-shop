@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.time.LocalDateTime;
 
@@ -68,6 +69,63 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now()
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handles {@link AuthenticationException}.
+     * This exception is thrown when authentication fails.
+     *
+     * @param exception The {@link AuthenticationException} instance that was thrown.
+     * @param request The current web request.
+     * @return A {@link ResponseEntity} containing a structured {@link ErrorResponse} and an HTTP status of 401 UNAUTHORIZED.
+     */
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException exception, WebRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.UNAUTHORIZED.value(),
+                exception.getMessage(),
+                BUG_REPORT_CONTACT,
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+    }
+
+    /**
+     * Handles {@link DuplicateResourceException}.
+     * This exception is thrown when trying to create a resource that already exists.
+     *
+     * @param exception The {@link DuplicateResourceException} instance that was thrown.
+     * @param request The current web request.
+     * @return A {@link ResponseEntity} containing a structured {@link ErrorResponse} and an HTTP status of 409 CONFLICT.
+     */
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateResourceException(DuplicateResourceException exception, WebRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                exception.getMessage(),
+                BUG_REPORT_CONTACT,
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+
+    /**
+     * Handles {@link MaxUploadSizeExceededException}.
+     * This exception is thrown when uploaded file size exceeds the configured limit.
+     *
+     * @param exception The {@link MaxUploadSizeExceededException} instance that was thrown.
+     * @param request The current web request.
+     * @return A {@link ResponseEntity} containing a structured {@link ErrorResponse} and an HTTP status of 413 PAYLOAD_TOO_LARGE.
+     */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorResponse> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException exception, WebRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.PAYLOAD_TOO_LARGE.value(),
+                "File size exceeds the maximum allowed limit",
+                BUG_REPORT_CONTACT,
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.PAYLOAD_TOO_LARGE);
     }
 
     /**
