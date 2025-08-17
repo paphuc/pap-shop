@@ -18,6 +18,12 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
      * @return a list of products that belong to the specified category
      */
     List<Product> findAllByCategoryID(Integer category);
-    
+
+    /**
+     * Finds a product by its SKU.
+     *
+     * @param sku the SKU of the product to find
+     * @return an Optional containing the product if found
+     */
     Optional<Product> findBySku(String sku);
 }

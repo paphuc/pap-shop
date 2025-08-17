@@ -2,6 +2,7 @@ package com.pap_shop.controller;
 
 import com.pap_shop.entity.Product;
 import com.pap_shop.dto.AddProductRequest;
+import com.pap_shop.dto.UpdateProductRequest;
 import com.pap_shop.service.ProductService;
 import com.pap_shop.service.ProductImportService;
 import com.pap_shop.util.ProductExcelExporter;
@@ -111,12 +112,25 @@ public class ProductController {
                 .body(new InputStreamResource(in));
     }
 
+    /**
+     * Updates a product by its SKU.
+     *
+     * @param sku the SKU of the product to update
+     * @param updateRequest the data transfer object containing updated product information
+     * @return a ResponseEntity containing the updated product
+     */
+    @PutMapping("/update/{sku}")
+    public ResponseEntity<Product> updateProductBySku(@PathVariable String sku, @RequestBody UpdateProductRequest updateRequest) {
+        Product updatedProduct = productService.updateProductBySku(sku, updateRequest);
+        return ResponseEntity.ok(updatedProduct);
+    }
+
     @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> importExcel(@RequestParam("file") MultipartFile file) {
         if (file == null || file.isEmpty()) {
             return ResponseEntity.badRequest().body("Please select a file to upload");
         }
-        
+
         try {
             List<Product> importedProducts = productImportService.importProductsFromExcel(file);
             return ResponseEntity.ok("Imported " + importedProducts.size() + " products successfully");
@@ -130,10 +144,10 @@ public class ProductController {
     @GetMapping("/template")
     public ResponseEntity<InputStreamResource> downloadTemplate() throws IOException {
         ByteArrayInputStream template = ProductExcelTemplate.generateTemplate();
-        
+
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=product-import-template.xlsx");
-        
+
         return ResponseEntity.ok()
                 .headers(headers)
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))

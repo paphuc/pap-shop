@@ -3,6 +3,7 @@ package com.pap_shop.service;
 import com.pap_shop.entity.Category;
 import com.pap_shop.entity.Product;
 import com.pap_shop.dto.AddProductRequest;
+import com.pap_shop.dto.UpdateProductRequest;
 import com.pap_shop.repository.CategoryRepository;
 import com.pap_shop.repository.ProductRepository;
 import lombok.AccessLevel;
@@ -90,5 +91,38 @@ public class ProductService {
             throw new RuntimeException("Product not found");
         }
         productRepository.deleteById(productId);
+    }
+
+    /**
+     * Updates a product by its SKU.
+     *
+     * @param sku the SKU of the product to update
+     * @param updateRequest the data transfer object containing updated product information
+     * @return the updated product entity
+     * @throws RuntimeException if the product or category is not found
+     */
+    public Product updateProductBySku(String sku, UpdateProductRequest updateRequest) {
+        Product product = productRepository.findBySku(sku)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        if (updateRequest.getName() != null) {
+            product.setName(updateRequest.getName());
+        }
+        if (updateRequest.getCategory() != null) {
+            Category category = categoryRepository.findById(updateRequest.getCategory())
+                    .orElseThrow(() -> new RuntimeException("Category not found"));
+            product.setCategory(category);
+        }
+        if (updateRequest.getDescription() != null) {
+            product.setDescription(updateRequest.getDescription());
+        }
+        if (updateRequest.getPrice() != null) {
+            product.setPrice(updateRequest.getPrice());
+        }
+        if (updateRequest.getStock() != null) {
+            product.setStock(updateRequest.getStock());
+        }
+
+        return productRepository.save(product);
     }
 }
