@@ -4,6 +4,7 @@ import com.pap_shop.entity.Category;
 import com.pap_shop.entity.Product;
 import com.pap_shop.dto.AddProductRequest;
 import com.pap_shop.dto.UpdateProductRequest;
+import com.pap_shop.exception.ResourceNotFoundException;
 import com.pap_shop.repository.CategoryRepository;
 import com.pap_shop.repository.ProductRepository;
 import lombok.AccessLevel;
@@ -35,7 +36,7 @@ public class ProductService {
     public Product addProduct(AddProductRequest addProductRequest) {
         // Find category by ID and handle case where it is not found
         Category category = categoryRepository.findById(addProductRequest.getCategory())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
         Product product = new Product();
         product.setName(addProductRequest.getName());
@@ -88,7 +89,7 @@ public class ProductService {
 
     public void deleteProduct(Integer productId) {
         if (!productRepository.existsById(productId)) {
-            throw new RuntimeException("Product not found");
+            throw new ResourceNotFoundException("Product not found");
         }
         productRepository.deleteById(productId);
     }
@@ -103,14 +104,14 @@ public class ProductService {
      */
     public Product updateProductBySku(String sku, UpdateProductRequest updateRequest) {
         Product product = productRepository.findBySku(sku)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         if (updateRequest.getName() != null) {
             product.setName(updateRequest.getName());
         }
         if (updateRequest.getCategory() != null) {
             Category category = categoryRepository.findById(updateRequest.getCategory())
-                    .orElseThrow(() -> new RuntimeException("Category not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
             product.setCategory(category);
         }
         if (updateRequest.getDescription() != null) {
