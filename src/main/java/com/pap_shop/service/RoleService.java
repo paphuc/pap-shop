@@ -1,6 +1,7 @@
 package com.pap_shop.service;
 
 import com.pap_shop.entity.User;
+import com.pap_shop.exception.ResourceNotFoundException;
 import com.pap_shop.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -53,9 +54,9 @@ public class RoleService {
      */
     public User updateRoleUserByID(Integer userId, Integer roleId){
         User existingUser = userRepository.findById(userId)
-                .orElseThrow(()-> new RuntimeException("User not found"));
+                .orElseThrow(()-> new ResourceNotFoundException("User not found"));
         Roles newRole = roleRepository.findByRoleId(roleId)
-                .orElseThrow(()-> new RuntimeException("Role not exist"));
+                .orElseThrow(()-> new ResourceNotFoundException("Role not exist"));
         existingUser.setRole(newRole);
         return userRepository.save(existingUser);
     }
