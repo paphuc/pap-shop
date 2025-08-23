@@ -10,6 +10,7 @@ import com.pap_shop.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,6 +65,24 @@ public class UserController {
 
     @GetMapping
     public List<User> getAllUsers(){ return userService.getAllUsers();}
+
+    /**
+     * Logout hiện tại người dùng bằng cách vô hiệu hóa JWT token.
+     *
+     * @param request HTTP request chứa Authorization header
+     * @return 200 OK nếu thành công
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.badRequest().body("Missing or invalid Authorization header");
+        }
+
+        userService.logout(authHeader);
+        return ResponseEntity.ok("Logged out successfully");
+    }
 
     /**
      * Change authenticated user's password.
