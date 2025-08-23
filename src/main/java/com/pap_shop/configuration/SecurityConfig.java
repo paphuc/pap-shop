@@ -1,5 +1,7 @@
 package com.pap_shop.configuration;
 
+import com.pap_shop.util.CustomJwtAuthenticationConverter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,8 +35,11 @@ public class SecurityConfig {
     private final Map<String, HttpMethod> PUBLIC_ENDPOINTS = Map.of(
             "/api/user/login", HttpMethod.POST,
             "/api/user/register", HttpMethod.POST,
+            "/api/user/forgot-password", HttpMethod.POST,
+            "/api/user/reset-password", HttpMethod.PUT,
             "/api/role", HttpMethod.GET,
-            "/api/products",HttpMethod.GET
+            "/api/products",HttpMethod.GET,
+            "/api/user/logout",HttpMethod.POST
     );
 
     private final Map<String, HttpMethod> ADMIN_ENDPOINTS = Map.of(
@@ -48,6 +53,8 @@ public class SecurityConfig {
     @Value("${jwt.secretkey}")
     private String secretkey;
 
+    @Autowired
+    private CustomJwtAuthenticationConverter jwtAuthenticationConverter;
     /**
      * Configures the security filter chain for HTTP requests.
      *
@@ -60,8 +67,10 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
-        http.oauth2ResourceServer(oauth2 ->
-                oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder())));
+        http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> {
+            jwtConfigurer.decoder(jwtDecoder());
+            jwtConfigurer.jwtAuthenticationConverter(jwtAuthenticationConverter);
+        }));
 
         http.authorizeHttpRequests(request -> {
 
@@ -69,6 +78,9 @@ public class SecurityConfig {
                 request.requestMatchers(new AntPathRequestMatcher(entry.getKey(), entry.getValue().name()))
                         .permitAll();
             }
+            
+            request.requestMatchers(new AntPathRequestMatcher("/api/user/reset-password", HttpMethod.PUT.name()))
+                    .permitAll();
 
             for (Map.Entry<String, HttpMethod> entry : ADMIN_ENDPOINTS.entrySet()) {
                 request.requestMatchers(new AntPathRequestMatcher(entry.getKey(), entry.getValue().name()))
@@ -76,6 +88,7 @@ public class SecurityConfig {
             }
             request.anyRequest().authenticated();
         });
+
         return http.build();
     }
 
