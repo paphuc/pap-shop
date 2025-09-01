@@ -40,6 +40,7 @@ public class SecurityConfig {
             "/api/user/reset-password", HttpMethod.PUT,
             "/api/role", HttpMethod.GET,
             "/api/products",HttpMethod.GET,
+            "/api/products/search",HttpMethod.GET,
             "/api/user/logout",HttpMethod.POST
     );
 

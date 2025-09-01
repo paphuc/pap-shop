@@ -26,4 +26,12 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
      * @return an Optional containing the product if found
      */
     Optional<Product> findBySku(String sku);
+
+    /**
+     * Finds all products whose name contains the specified string (case-insensitive).
+     *
+     * @param name the name or partial name to search for
+     * @return a list of products whose names contain the search term
+     */
+    List<Product> findByNameContainingIgnoreCase(String name);
 }
