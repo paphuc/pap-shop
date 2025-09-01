@@ -5,6 +5,7 @@ import com.pap_shop.dto.ForgotPasswordRequest;
 import com.pap_shop.dto.LoginRequest;
 import com.pap_shop.dto.ResetPasswordRequest;
 import com.pap_shop.dto.UserRequest;
+import com.pap_shop.dto.ValidateCodeRequest;
 import com.pap_shop.entity.User;
 import com.pap_shop.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -105,13 +106,25 @@ public class UserController {
     @PostMapping("/forgot-password")
     public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequest request) {
         userService.forgotPassword(request.getEmail());
-        return ResponseEntity.ok("Password reset link sent to your email");
+        return ResponseEntity.ok("Password reset code sent to your email");
     }
 
     /**
-     * Resets user password using reset token.
+     * Validates reset code.
      *
-     * @param request the reset password request containing token and new password
+     * @param request the validate code request containing reset code
+     * @return success message
+     */
+    @PostMapping("/validate-reset-code")
+    public ResponseEntity<String> validateResetCode(@RequestBody ValidateCodeRequest request) {
+        userService.validateResetCode(request.getCode());
+        return ResponseEntity.ok("Reset code is valid");
+    }
+
+    /**
+     * Resets user password using reset code.
+     *
+     * @param request the reset password request containing code and new password
      * @return success message
      */
     @PutMapping("/reset-password")

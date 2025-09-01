@@ -216,56 +216,68 @@ public class UserService {
     }
 
     /**
-     * Initiates password reset process by sending reset email.
+     * Generates a random 5-character code with letters and numbers.
+     */
+    private String generateResetCode() {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        StringBuilder code = new StringBuilder();
+        for (int i = 0; i < 5; i++) {
+            code.append(chars.charAt((int) (Math.random() * chars.length())));
+        }
+        return code.toString();
+    }
+
+    /**
+     * Initiates password reset process by sending reset code via email.
      *
-     * @param email the email address to send reset link to
+     * @param email the email address to send reset code to
      * @throws RuntimeException if email is not found
      */
     public void forgotPassword(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Email not found"));
 
-        String resetToken = UUID.randomUUID().toString();
+        String resetCode = generateResetCode();
         Instant expiryTime = Instant.now().plusSeconds(900); // 15 minutes
 
         PasswordResetToken token = new PasswordResetToken();
-        token.setToken(resetToken);
+        token.setToken(resetCode);
         token.setEmail(email);
         token.setExpiryTime(expiryTime);
         passwordResetTokenRepository.save(token);
 
-        emailService.sendResetPasswordEmail(email, resetToken);
+        emailService.sendResetPasswordEmail(email, resetCode);
     }
 
     /**
-     * Validates reset token.
+     * Validates reset code.
      *
-     * @param token the reset token to validate
-     * @throws RuntimeException if token is invalid or expired
+     * @param code the 5-character reset code to validate
+     * @throws RuntimeException if code is invalid or expired
      */
-    public void validateResetToken(String token) {
-        PasswordResetToken resetToken = passwordResetTokenRepository.findByTokenAndUsedFalse(token)
-                .orElseThrow(() -> new RuntimeException("Invalid or expired reset token"));
+    public void validateResetCode(String code) {
+        PasswordResetToken resetToken = passwordResetTokenRepository.findByTokenAndUsedFalse(code)
+                .orElseThrow(() -> new RuntimeException("Invalid or expired reset code"));
 
         if (resetToken.getExpiryTime().isBefore(Instant.now())) {
-            throw new RuntimeException("Reset token has expired");
+            throw new RuntimeException("Reset code has expired");
         }
     }
 
     /**
-     * Resets user password using reset token.
+     * Resets user password using reset code.
      *
-     * @param token the reset token
+     * @param code the 5-character reset code
      * @param newPassword the new password
      * @param confirmPassword confirmation of new password
-     * @throws RuntimeException if token is invalid, expired, or passwords don't match
+     * @throws RuntimeException if code is invalid, expired, or passwords don't match
      */
-    public void resetPassword(String token, String newPassword, String confirmPassword) {
-        PasswordResetToken resetToken = passwordResetTokenRepository.findByTokenAndUsedFalse(token)
-                .orElseThrow(() -> new RuntimeException("Invalid or expired reset token"));
+    public void resetPassword(String code, String newPassword, String confirmPassword) {
+        PasswordResetToken resetToken = passwordResetTokenRepository.findByTokenAndUsedFalse(code)
+                .orElseThrow(() -> new RuntimeException("Invalid or expired reset code"));
 
         if (resetToken.getExpiryTime().isBefore(Instant.now())) {
-            throw new RuntimeException("Reset token has expired");
+            throw new RuntimeException("Reset code has expired");
         }
 
         if (!newPassword.equals(confirmPassword)) {
