@@ -153,4 +153,16 @@ public class ProductController {
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(new InputStreamResource(template));
     }
+
+    /**
+     * Searches for products by name (case-insensitive partial match).
+     *
+     * @param name the name or partial name to search for
+     * @return a ResponseEntity containing a list of products matching the search term
+     */
+    @GetMapping("/search")
+    public ResponseEntity<List<Product>> searchProductsByName(@RequestParam String name) {
+        List<Product> products = productService.searchProductsByName(name);
+        return ResponseEntity.ok(products);
+    }
 }

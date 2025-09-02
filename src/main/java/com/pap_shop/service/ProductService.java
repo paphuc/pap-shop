@@ -126,4 +126,14 @@ public class ProductService {
 
         return productRepository.save(product);
     }
+
+    /**
+     * Searches for products by name (case-insensitive partial match).
+     *
+     * @param name the name or partial name to search for
+     * @return a list of products whose names contain the search term
+     */
+    public List<Product> searchProductsByName(String name) {
+        return productRepository.findByNameContainingIgnoreCase(name);
+    }
 }
