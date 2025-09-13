@@ -53,6 +53,9 @@ dependencies {
 
 	// Email support
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+	// Validation
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
 }
 
 tasks.named('test') {
