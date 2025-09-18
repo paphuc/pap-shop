@@ -24,6 +24,7 @@ import java.util.Arrays;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Map;
+import java.util.HashMap;
 
 @Configuration
 @EnableWebSecurity
@@ -32,17 +33,18 @@ public class SecurityConfig {
     /**
      * Array of public endpoints that do not require authentication.
      */
-    private final Map<String, HttpMethod> PUBLIC_ENDPOINTS = Map.of(
-            "/api/user/login", HttpMethod.POST,
-            "/api/user/register", HttpMethod.POST,
-            "/api/user/forgot-password", HttpMethod.POST,
-            "/api/user/validate-reset-code", HttpMethod.POST,
-            "/api/user/reset-password", HttpMethod.PUT,
-            "/api/role", HttpMethod.GET,
-            "/api/products",HttpMethod.GET,
-            "/api/products/search",HttpMethod.GET,
-            "/api/user/logout",HttpMethod.POST
-    );
+    private final Map<String, HttpMethod> PUBLIC_ENDPOINTS = new HashMap<String, HttpMethod>() {{
+        put("/api/user/login", HttpMethod.POST);
+        put("/api/user/register", HttpMethod.POST);
+        put("/api/user/forgot-password", HttpMethod.POST);
+        put("/api/user/validate-reset-code", HttpMethod.POST);
+        put("/api/user/reset-password", HttpMethod.PUT);
+        put("/api/role", HttpMethod.GET);
+        put("/api/products", HttpMethod.GET);
+        put("/api/products/search", HttpMethod.GET);
+        put("/api/user/logout", HttpMethod.POST);
+        put("/api/products/*/images", HttpMethod.GET);
+    }};
 
     private final Map<String, HttpMethod> ADMIN_ENDPOINTS = Map.of(
             "/api/role", HttpMethod.POST,
@@ -85,6 +87,9 @@ public class SecurityConfig {
                 request.requestMatchers(new AntPathRequestMatcher(entry.getKey(), entry.getValue().name()))
                         .hasAuthority("SCOPE_ADMIN");
             }
+            
+            request.requestMatchers(new AntPathRequestMatcher("/uploads/**")).permitAll();
+            
             request.anyRequest().authenticated();
         });
 
