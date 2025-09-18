@@ -2,11 +2,14 @@ package com.pap_shop.service;
 
 import com.pap_shop.entity.Category;
 import com.pap_shop.entity.Product;
+import com.pap_shop.entity.ProductImage;
 import com.pap_shop.dto.AddProductRequest;
 import com.pap_shop.dto.UpdateProductRequest;
+import com.pap_shop.dto.AddImageRequest;
 import com.pap_shop.exception.ResourceNotFoundException;
 import com.pap_shop.repository.CategoryRepository;
 import com.pap_shop.repository.ProductRepository;
+import com.pap_shop.repository.ProductImageRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -25,6 +28,8 @@ import java.util.Optional;
 public class ProductService {
     ProductRepository productRepository;
     CategoryRepository categoryRepository;
+    ProductImageRepository productImageRepository;
+    CloudinaryService cloudinaryService;
 
     /**
      * Adds a new product using product data from a DTO.
@@ -135,5 +140,52 @@ public class ProductService {
      */
     public List<Product> searchProductsByName(String name) {
         return productRepository.findByNameContainingIgnoreCase(name);
+    }
+
+    public ProductImage addImageToProduct(Integer productId, AddImageRequest request) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        
+        ProductImage image = new ProductImage();
+        image.setImageUrl(request.getImageUrl());
+        image.setProduct(product);
+        
+        return productImageRepository.save(image);
+    }
+
+    public void deleteImage(Integer imageId) {
+        ProductImage image = productImageRepository.findById(imageId)
+                .orElseThrow(() -> new ResourceNotFoundException("Image not found"));
+        
+        try {
+            cloudinaryService.deleteImage(image.getImageUrl());
+        } catch (Exception e) {
+            System.err.println("Failed to delete image from Cloudinary: " + e.getMessage());
+        }
+        
+        productImageRepository.deleteById(imageId);
+    }
+
+    public ProductImage uploadImageToProduct(Integer productId, org.springframework.web.multipart.MultipartFile file) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        
+        try {
+            String imageUrl = cloudinaryService.uploadImage(file);
+            
+            ProductImage image = new ProductImage();
+            image.setImageUrl(imageUrl);
+            image.setProduct(product);
+            
+            return productImageRepository.save(image);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to upload image: " + e.getMessage());
+        }
+    }
+
+    public List<ProductImage> getProductImages(Integer productId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        return product.getImages();
     }
 }

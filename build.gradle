@@ -54,8 +54,13 @@ dependencies {
 	// Email support
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 
+
 	// Validation
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// Cloudinary for image storage
+	implementation 'com.cloudinary:cloudinary-http44:1.34.0'
+
 }
 
 tasks.named('test') {
