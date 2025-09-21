@@ -104,16 +104,29 @@ public class UserService {
             optionalUser = userRepository.findByUsername(emailOrPhoneOrUsername);
         }
 
-        User user = optionalUser.orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        User user = optionalUser.orElseThrow(() -> new AuthenticationException("Username/Email/Phone number not found"));
 
         if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
             throw new AuthenticationException("Invalid credentials");
+        }
+
+        if ("inactive".equals(user.getStatus())) {
+            throw new AuthenticationException("Account has been locked");
         }
 
         return JwtUtil.generateToken(user);
     }
 
     public User addUser(User user){
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new DuplicateResourceException("Email already in use");
+        }
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            throw new DuplicateResourceException("Username already in use");
+        }
+        
+        user.setPassword(passwordEncoder.encode("123456")); // Default password
+        user.setStatus("active");
         return userRepository.save(user);
     }
 
@@ -302,5 +315,63 @@ public class UserService {
 
         resetToken.setUsed(true);
         passwordResetTokenRepository.save(resetToken);
+    }
+
+    // Admin methods
+    public User createUser(User user) {
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new DuplicateResourceException("Email already in use");
+        }
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            throw new DuplicateResourceException("Username already in use");
+        }
+        
+        user.setPassword(passwordEncoder.encode("123456")); // Default password
+        user.setStatus("active");
+        return userRepository.save(user);
+    }
+
+    public User updateUserRole(Integer userId, Integer roleId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        
+
+        if ("ADMIN".equals(user.getRole().getRole())) {
+            throw new IllegalArgumentException("Cannot change admin role");
+        }
+        
+        Roles role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found"));
+        
+        user.setRole(role);
+        user.setUpdateAt(LocalDateTime.now());
+        return userRepository.save(user);
+    }
+
+    public User toggleUserStatus(Integer userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        
+
+        if ("ADMIN".equals(user.getRole().getRole())) {
+            throw new IllegalArgumentException("Cannot lock admin account");
+        }
+        
+        String newStatus = "active".equals(user.getStatus()) ? "inactive" : "active";
+        user.setStatus(newStatus);
+        user.setUpdateAt(LocalDateTime.now());
+        return userRepository.save(user);
+    }
+
+    public void deleteUser(Integer userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        
+
+        if ("ADMIN".equals(user.getRole().getRole())) {
+            throw new IllegalArgumentException("Cannot delete admin account");
+        }
+        
+        userRepository.deleteById(userId);
     }
 }

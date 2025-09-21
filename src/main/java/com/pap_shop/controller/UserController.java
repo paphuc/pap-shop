@@ -67,12 +67,6 @@ public class UserController {
     @GetMapping
     public List<User> getAllUsers(){ return userService.getAllUsers();}
 
-    /**
-     * Logout hiện tại người dùng bằng cách vô hiệu hóa JWT token.
-     *
-     * @param request HTTP request chứa Authorization header
-     * @return 200 OK nếu thành công
-     */
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
@@ -131,5 +125,30 @@ public class UserController {
     public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
         userService.resetPassword(request.getToken(), request.getNewPassword(), request.getConfirmPassword());
         return ResponseEntity.ok("Password reset successfully");
+    }
+
+    // Admin endpoints
+    @PostMapping("/admin/create")
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        User createdUser = userService.addUser(user);
+        return ResponseEntity.ok(createdUser);
+    }
+
+    @PutMapping("/admin/{id}/role")
+    public ResponseEntity<User> updateUserRole(@PathVariable Integer id, @RequestBody Integer roleId) {
+        User updatedUser = userService.updateUserRole(id, roleId);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    @PutMapping("/admin/{id}/status")
+    public ResponseEntity<User> toggleUserStatus(@PathVariable Integer id) {
+        User updatedUser = userService.toggleUserStatus(id);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    @DeleteMapping("/admin/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable Integer id) {
+        userService.deleteUser(id);
+        return ResponseEntity.ok("User deleted successfully");
     }
 }

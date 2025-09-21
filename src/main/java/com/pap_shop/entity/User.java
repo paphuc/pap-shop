@@ -79,4 +79,8 @@ public class User {
 
     @Column(name = "update_at")
     private LocalDateTime updateAt;
+
+    @Builder.Default
+    @Column(name = "status", nullable = false)
+    private String status = "active"; // active, inactive
 }

@@ -47,11 +47,20 @@ public class SecurityConfig {
         put("/api/products/*/images", HttpMethod.GET);
     }};
 
-    private final Map<String, HttpMethod> ADMIN_ENDPOINTS = Map.of(
-            "/api/role", HttpMethod.POST,
-            "/api/category", HttpMethod.POST,
-            "/api/role/update", HttpMethod.PUT
-    );
+    private final Map<String, HttpMethod> ADMIN_ENDPOINTS = new HashMap<String, HttpMethod>() {{
+        put("/api/role", HttpMethod.POST);
+        put("/api/category", HttpMethod.POST);
+        put("/api/role/update", HttpMethod.PUT);
+        put("/api/dashboard/stats", HttpMethod.GET);
+        put("/api/dashboard/recent-orders", HttpMethod.GET);
+        put("/api/products", HttpMethod.POST);
+        put("/api/products/*/upload-image", HttpMethod.POST);
+        put("/api/user", HttpMethod.GET);
+        put("/api/user/admin/create", HttpMethod.POST);
+        put("/api/user/admin/*/role", HttpMethod.PUT);
+        put("/api/user/admin/*/status", HttpMethod.PUT);
+        put("/api/user/admin/*", HttpMethod.DELETE);
+    }};
     /**
      * JWT secret key injected from application properties.
      */
