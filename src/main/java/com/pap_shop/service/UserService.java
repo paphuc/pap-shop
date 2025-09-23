@@ -117,6 +117,13 @@ public class UserService {
         return JwtUtil.generateToken(user);
     }
 
+    /**
+     * Add new user with default password (Admin function).
+     *
+     * @param user the user to add
+     * @return the created user
+     * @throws DuplicateResourceException if email or username already exists
+     */
     public User addUser(User user){
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new DuplicateResourceException("Email already in use");
@@ -188,14 +195,32 @@ public class UserService {
             invalidatedTokenRepo.save(invalidatedToken);
         }
     }
+    /**
+     * Get user by ID.
+     *
+     * @param id the user ID
+     * @return optional containing user if found
+     */
     public Optional<User> getUserById(Integer id){
         return userRepository.findById(id);
     }
 
+    /**
+     * Get all users.
+     *
+     * @return list of all users
+     */
     public List<User> getAllUsers(){
         return userRepository.findAll();
     }
 
+    /**
+     * Find user by username.
+     *
+     * @param username the username to search for
+     * @return the user with specified username
+     * @throws ResourceNotFoundException if user is not found
+     */
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -235,6 +260,11 @@ public class UserService {
 
     /**
      * Generates a random 5-character code with letters and numbers.
+     */
+    /**
+     * Generate random 5-character reset code.
+     *
+     * @return the generated reset code
      */
     private String generateResetCode() {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -318,6 +348,13 @@ public class UserService {
     }
 
     // Admin methods
+    /**
+     * Create new user (Admin function).
+     *
+     * @param user the user to create
+     * @return the created user
+     * @throws DuplicateResourceException if email or username already exists
+     */
     public User createUser(User user) {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new DuplicateResourceException("Email already in use");
@@ -331,6 +368,15 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    /**
+     * Update user's role (Admin function).
+     *
+     * @param userId the user ID
+     * @param roleId the new role ID
+     * @return the updated user
+     * @throws ResourceNotFoundException if user or role is not found
+     * @throws IllegalArgumentException if trying to change admin role
+     */
     public User updateUserRole(Integer userId, Integer roleId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -348,6 +394,14 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    /**
+     * Toggle user status between active and inactive (Admin function).
+     *
+     * @param userId the user ID
+     * @return the updated user
+     * @throws ResourceNotFoundException if user is not found
+     * @throws IllegalArgumentException if trying to lock admin account
+     */
     public User toggleUserStatus(Integer userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -363,6 +417,13 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    /**
+     * Delete user (Admin function).
+     *
+     * @param userId the user ID to delete
+     * @throws ResourceNotFoundException if user is not found
+     * @throws IllegalArgumentException if trying to delete admin account
+     */
     public void deleteUser(Integer userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));

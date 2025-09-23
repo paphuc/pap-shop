@@ -40,6 +40,13 @@ public class CategoryService {
         return categoryRepository.findAll();
     }
 
+    /**
+     * Retrieves a category by its ID.
+     *
+     * @param id the ID of the category to retrieve
+     * @return the category with the specified ID
+     * @throws ResourceNotFoundException if category is not found
+     */
     public Category getCategoryById(Integer id) {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + id));

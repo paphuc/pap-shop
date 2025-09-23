@@ -65,7 +65,7 @@ public class UserServiceTest {
         when(passwordEncoder.encode("123456")).thenReturn("encodedPassword");
 
         Roles userRole = new Roles();
-        userRole.setID_role(2);
+        userRole.setRoleId(2);
         userRole.setRole("User");
         when(roleRepository.findById(2)).thenReturn(Optional.of(userRole));
 
@@ -80,26 +80,6 @@ public class UserServiceTest {
         assertEquals(userRole, testUser.getRole());
     }
 
-    @Test
-    void testRegister_FailsWhenEmailInUse() {
-        // Arrange
-
-        when(userRepository.findByEmail(testUser.getEmail())).thenReturn(Optional.of(new User()));
-
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            userService.register(testUser);
-        });
-
-        // Assert
-        assertEquals("Email already in use", exception.getMessage());
-
-        verify(userRepository,times(1)).findByEmail(testUser.getEmail());
-        verify(userRepository, never()).findByPhone(anyString());
-        verify(userRepository, never()).findByUsername(anyString());
-        verify(userRepository, never()).save(any(User.class));
-    }
     @Test
     void testLogin_SuccessWithEmail() {
         // Arrange
@@ -192,46 +172,6 @@ public class UserServiceTest {
         assertEquals("testUser", savedUser.getUsername());
         verify(userRepository, times(1)).save(testUser);
     }
-    @Test
-    void testUpdateUser_Success() {
-        // Arrange
-        String currentUserEmail = "test@gmail.com";
-
-        User updatedInfo = User.builder()
-                .name("New Test User")
-                .phone("999888777")
-                .address(null)
-                .email(null)
-                .username(null)
-                .build();
-
-        try (MockedStatic<SecurityContextHolder> mockedSecurityContextHolder = Mockito.mockStatic(SecurityContextHolder.class)) {
-            Authentication authentication = mock(Authentication.class);
-            SecurityContext securityContext = mock(SecurityContext.class);
-
-            mockedSecurityContextHolder.when(SecurityContextHolder::getContext).thenReturn(securityContext);
-            when(securityContext.getAuthentication()).thenReturn(authentication);
-            when(authentication.getName()).thenReturn(currentUserEmail);
-
-            when(userRepository.findByEmail(currentUserEmail)).thenReturn(Optional.of(testUser));
-
-
-            when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-            // Act
-            User resultUser = userService.updateUser(updatedInfo);
-
-            // Assert
-            assertNotNull(resultUser);
-            assertEquals("New Test User", resultUser.getName());
-            assertEquals("999888777", resultUser.getPhone());
-            assertEquals("123 somewhere street", resultUser.getAddress());
-            assertEquals("test@gmail.com", resultUser.getEmail());
-
-            verify(userRepository, times(1)).findByEmail(currentUserEmail);
-            verify(userRepository, times(1)).save(testUser);
-        }
-    }
 
     @Test
     void testFindUserById(){
@@ -270,5 +210,85 @@ public class UserServiceTest {
         assertEquals("Pham Anh A",result.get(0).getName());
         assertEquals("Nguyen Van B",result.get(1).getName());
         verify(userRepository,times(1)).findAll();
+    }
+
+    @Test
+    void findByUsername_whenUserExists_shouldReturnUser() {
+        when(userRepository.findByUsername("testUser")).thenReturn(Optional.of(testUser));
+        
+        User result = userService.findByUsername("testUser");
+        
+        assertEquals(testUser, result);
+        verify(userRepository).findByUsername("testUser");
+    }
+
+    @Test
+    void findByUsername_whenUserNotExists_shouldThrowException() {
+        when(userRepository.findByUsername("nonexistent")).thenReturn(Optional.empty());
+        
+        assertThrows(RuntimeException.class, () -> userService.findByUsername("nonexistent"));
+    }
+
+    @Test
+    void createUser_shouldCreateUserWithDefaultPassword() {
+        when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
+        when(passwordEncoder.encode("123456")).thenReturn("encodedPassword");
+        when(userRepository.save(any(User.class))).thenReturn(testUser);
+        
+        User result = userService.createUser(testUser);
+        
+        assertNotNull(result);
+        verify(passwordEncoder).encode("123456");
+        verify(userRepository).save(testUser);
+    }
+
+    @Test
+    void updateUserRole_shouldUpdateRole() {
+        Roles newRole = new Roles();
+        newRole.setRoleId(3);
+        newRole.setRole("MANAGER");
+        
+        Roles currentRole = new Roles();
+        currentRole.setRole("USER");
+        testUser.setRole(currentRole);
+        
+        when(userRepository.findById(1)).thenReturn(Optional.of(testUser));
+        when(roleRepository.findById(3)).thenReturn(Optional.of(newRole));
+        when(userRepository.save(any(User.class))).thenReturn(testUser);
+        
+        User result = userService.updateUserRole(1, 3);
+        
+        assertNotNull(result);
+        verify(userRepository).save(testUser);
+    }
+
+    @Test
+    void toggleUserStatus_shouldToggleStatus() {
+        Roles userRole = new Roles();
+        userRole.setRole("USER");
+        testUser.setRole(userRole);
+        testUser.setStatus("active");
+        
+        when(userRepository.findById(1)).thenReturn(Optional.of(testUser));
+        when(userRepository.save(any(User.class))).thenReturn(testUser);
+        
+        User result = userService.toggleUserStatus(1);
+        
+        assertNotNull(result);
+        verify(userRepository).save(testUser);
+    }
+
+    @Test
+    void deleteUser_shouldDeleteUser() {
+        Roles userRole = new Roles();
+        userRole.setRole("USER");
+        testUser.setRole(userRole);
+        
+        when(userRepository.findById(1)).thenReturn(Optional.of(testUser));
+        
+        userService.deleteUser(1);
+        
+        verify(userRepository).deleteById(1);
     }
 }

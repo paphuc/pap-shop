@@ -59,6 +59,13 @@ public class ProductService {
         return productRepository.save(product);
     }
     
+    /**
+     * Generate SKU for product based on category and product name.
+     *
+     * @param productName the product name
+     * @param categoryName the category name
+     * @return generated SKU
+     */
     private String generateSku(String productName, String categoryName) {
         String prefix = categoryName.substring(0, Math.min(3, categoryName.length())).toUpperCase();
         String namePart = productName.replaceAll("\\s+", "").substring(0, Math.min(3, productName.replaceAll("\\s+", "").length())).toUpperCase();
@@ -105,6 +112,12 @@ public class ProductService {
         return productRepository.findAllByCategoryID(ID);
     }
 
+    /**
+     * Deletes a product by its ID.
+     *
+     * @param productId the ID of the product to delete
+     * @throws ResourceNotFoundException if product is not found
+     */
     public void deleteProduct(Integer productId) {
         if (!productRepository.existsById(productId)) {
             throw new ResourceNotFoundException("Product not found");
@@ -155,6 +168,14 @@ public class ProductService {
         return productRepository.findByNameContainingIgnoreCase(name);
     }
 
+    /**
+     * Add image to product using image URL.
+     *
+     * @param productId the product ID
+     * @param request the image request containing image URL
+     * @return the added product image
+     * @throws ResourceNotFoundException if product is not found
+     */
     public ProductImage addImageToProduct(Integer productId, AddImageRequest request) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
@@ -166,6 +187,12 @@ public class ProductService {
         return productImageRepository.save(image);
     }
 
+    /**
+     * Delete product image.
+     *
+     * @param imageId the image ID to delete
+     * @throws ResourceNotFoundException if image is not found
+     */
     public void deleteImage(Integer imageId) {
         ProductImage image = productImageRepository.findById(imageId)
                 .orElseThrow(() -> new ResourceNotFoundException("Image not found"));
@@ -179,6 +206,15 @@ public class ProductService {
         productImageRepository.deleteById(imageId);
     }
 
+    /**
+     * Upload image file to product.
+     *
+     * @param productId the product ID
+     * @param file the image file to upload
+     * @return the uploaded product image
+     * @throws ResourceNotFoundException if product is not found
+     * @throws RuntimeException if upload fails
+     */
     public ProductImage uploadImageToProduct(Integer productId, org.springframework.web.multipart.MultipartFile file) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
@@ -196,6 +232,13 @@ public class ProductService {
         }
     }
 
+    /**
+     * Get all images for a product.
+     *
+     * @param productId the product ID
+     * @return list of product images
+     * @throws ResourceNotFoundException if product is not found
+     */
     public List<ProductImage> getProductImages(Integer productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));

@@ -9,12 +9,23 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Map;
 
+/**
+ * Service class for managing image uploads and deletions using Cloudinary.
+ * Provides functionality to upload and delete images from cloud storage.
+ */
 @Service
 @RequiredArgsConstructor
 public class CloudinaryService {
     
     private final Cloudinary cloudinary;
 
+    /**
+     * Upload image file to Cloudinary.
+     *
+     * @param file the image file to upload
+     * @return the secure URL of the uploaded image
+     * @throws IOException if upload fails
+     */
     public String uploadImage(MultipartFile file) throws IOException {
         try {
             System.out.println("Uploading file: " + file.getOriginalFilename());
@@ -35,6 +46,12 @@ public class CloudinaryService {
         }
     }
 
+    /**
+     * Delete image from Cloudinary.
+     *
+     * @param imageUrl the URL of the image to delete
+     * @throws IOException if deletion fails
+     */
     public void deleteImage(String imageUrl) throws IOException {
         try {
             String publicId = extractPublicId(imageUrl);
@@ -45,6 +62,12 @@ public class CloudinaryService {
         }
     }
 
+    /**
+     * Extract public ID from Cloudinary image URL.
+     *
+     * @param imageUrl the Cloudinary image URL
+     * @return the public ID for the image
+     */
     private String extractPublicId(String imageUrl) {
         String[] parts = imageUrl.split("/");
         String fileName = parts[parts.length - 1];

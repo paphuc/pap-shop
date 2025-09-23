@@ -24,6 +24,12 @@ public class UserController {
         this.userService = userService;
     }
 
+    /**
+     * Update user information.
+     *
+     * @param updatedUser the user object containing updated information
+     * @return the updated user information
+     */
     @PutMapping("/update")
     public ResponseEntity<UserRequest> updateUser(@RequestBody User updatedUser) {
         User user = userService.updateUser(updatedUser);
@@ -58,15 +64,32 @@ public class UserController {
         return userService.login(request.getEmailOrPhoneOrUsername(), request.getPassword());
     }
 
+    /**
+     * Get user by ID.
+     *
+     * @param ID the user ID
+     * @return the user if found, otherwise 404
+     */
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable("id") Integer ID){
         Optional<User> user = userService.getUserById(ID);
         return user.map(ResponseEntity::ok).orElseGet(()->ResponseEntity.notFound().build());
     }
 
+    /**
+     * Get all users.
+     *
+     * @return list of all users
+     */
     @GetMapping
     public List<User> getAllUsers(){ return userService.getAllUsers();}
 
+    /**
+     * Logout user by invalidating JWT token.
+     *
+     * @param request the HTTP request containing Authorization header
+     * @return success message
+     */
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
@@ -128,24 +151,49 @@ public class UserController {
     }
 
     // Admin endpoints
+    /**
+     * Create a new user (Admin only).
+     *
+     * @param user the user object to create
+     * @return the created user
+     */
     @PostMapping("/admin/create")
     public ResponseEntity<User> createUser(@RequestBody User user) {
         User createdUser = userService.addUser(user);
         return ResponseEntity.ok(createdUser);
     }
 
+    /**
+     * Update user role (Admin only).
+     *
+     * @param id the user ID
+     * @param roleId the new role ID
+     * @return the updated user
+     */
     @PutMapping("/admin/{id}/role")
     public ResponseEntity<User> updateUserRole(@PathVariable Integer id, @RequestBody Integer roleId) {
         User updatedUser = userService.updateUserRole(id, roleId);
         return ResponseEntity.ok(updatedUser);
     }
 
+    /**
+     * Toggle user status (Admin only).
+     *
+     * @param id the user ID
+     * @return the updated user
+     */
     @PutMapping("/admin/{id}/status")
     public ResponseEntity<User> toggleUserStatus(@PathVariable Integer id) {
         User updatedUser = userService.toggleUserStatus(id);
         return ResponseEntity.ok(updatedUser);
     }
 
+    /**
+     * Delete user (Admin only).
+     *
+     * @param id the user ID to delete
+     * @return success message
+     */
     @DeleteMapping("/admin/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Integer id) {
         userService.deleteUser(id);

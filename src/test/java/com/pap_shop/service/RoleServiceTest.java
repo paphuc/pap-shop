@@ -10,6 +10,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -87,5 +89,37 @@ public class RoleServiceTest {
         assertEquals("Role not exist",exception.getMessage());
         verify(userRepository).findById(userId);
         verify(roleRepository).findByRoleId(roleId);
+    }
+
+    @Test
+    void addRole_shouldSaveAndReturnRole() {
+        Roles role = new Roles();
+        role.setRole("MANAGER");
+        
+        when(roleRepository.save(role)).thenReturn(role);
+        
+        Roles result = roleService.addRole(role);
+        
+        assertNotNull(result);
+        assertEquals("MANAGER", result.getRole());
+        verify(roleRepository).save(role);
+    }
+
+    @Test
+    void getAllRoles_shouldReturnAllRoles() {
+        Roles role1 = new Roles();
+        role1.setRole("ADMIN");
+        Roles role2 = new Roles();
+        role2.setRole("USER");
+        
+        List<Roles> roles = Arrays.asList(role1, role2);
+        when(roleRepository.findAll()).thenReturn(roles);
+        
+        List<Roles> result = roleService.getAllRoles();
+        
+        assertEquals(2, result.size());
+        assertEquals("ADMIN", result.get(0).getRole());
+        assertEquals("USER", result.get(1).getRole());
+        verify(roleRepository).findAll();
     }
 }
