@@ -58,6 +58,14 @@ public class UserController {
         return userService.login(request.getEmailOrPhoneOrUsername(), request.getPassword());
     }
 
+    @GetMapping("/profile")
+    public ResponseEntity<UserRequest> getProfile() {
+        User user = userService.getCurrentUser();
+        UserRequest userRequest = new UserRequest(user.getId(), user.getName(), 
+                user.getEmail(), user.getPhone(), user.getAddress(), user.getRole().getRoleId());
+        return ResponseEntity.ok(userRequest);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable("id") Integer ID){
         Optional<User> user = userService.getUserById(ID);
