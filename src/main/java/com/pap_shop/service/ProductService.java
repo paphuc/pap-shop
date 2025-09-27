@@ -49,8 +49,21 @@ public class ProductService {
         product.setCategory(category);
         product.setStock(addProductRequest.getStock());
         product.setDescription(addProductRequest.getDescription());
-        product.setSku(addProductRequest.getSku());
+
+        String sku = addProductRequest.getSku();
+        if (sku == null || sku.trim().isEmpty()) {
+            sku = generateSku(addProductRequest.getName(), category.getName());
+        }
+        product.setSku(sku);
+        
         return productRepository.save(product);
+    }
+    
+    private String generateSku(String productName, String categoryName) {
+        String prefix = categoryName.substring(0, Math.min(3, categoryName.length())).toUpperCase();
+        String namePart = productName.replaceAll("\\s+", "").substring(0, Math.min(3, productName.replaceAll("\\s+", "").length())).toUpperCase();
+        long timestamp = System.currentTimeMillis() % 10000;
+        return prefix + "-" + namePart + "-" + timestamp;
     }
 
     /**
