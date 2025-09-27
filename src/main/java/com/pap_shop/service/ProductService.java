@@ -10,6 +10,7 @@ import com.pap_shop.exception.ResourceNotFoundException;
 import com.pap_shop.repository.CategoryRepository;
 import com.pap_shop.repository.ProductRepository;
 import com.pap_shop.repository.ProductImageRepository;
+import com.pap_shop.repository.StockEntryRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -29,6 +30,7 @@ public class ProductService {
     ProductRepository productRepository;
     CategoryRepository categoryRepository;
     ProductImageRepository productImageRepository;
+    StockEntryRepository stockEntryRepository;
     CloudinaryService cloudinaryService;
 
     /**
@@ -49,8 +51,44 @@ public class ProductService {
         product.setCategory(category);
         product.setStock(addProductRequest.getStock());
         product.setDescription(addProductRequest.getDescription());
-        product.setSku(addProductRequest.getSku());
+
+        String sku = addProductRequest.getSku();
+        if (sku == null || sku.trim().isEmpty()) {
+            sku = generateSku(addProductRequest.getName(), category.getName());
+        }
+        product.setSku(sku);
+        
         return productRepository.save(product);
+    }
+    
+    /**
+     * Generate SKU for product based on category.
+     *
+     * @param productName the product name
+     * @param categoryName the category name
+     * @return generated SKU
+     */
+    private String generateSku(String productName, String categoryName) {
+        String prefix = removeDiacritics(categoryName).replaceAll("[^a-zA-Z]", "").substring(0, 1).toUpperCase();
+        long number = System.currentTimeMillis() % 100000;
+        return prefix + String.format("%05d", number);
+    }
+    
+    private String removeDiacritics(String input) {
+        return input.replaceAll("[àáạảãâầấậẩẫăằắặẳẵ]", "a")
+                   .replaceAll("[èéẹẻẽêềếệểễ]", "e")
+                   .replaceAll("[ìíịỉĩ]", "i")
+                   .replaceAll("[òóọỏõôồốộổỗơờớợởỡ]", "o")
+                   .replaceAll("[ùúụủũưừứựửữ]", "u")
+                   .replaceAll("[ỳýỵỷỹ]", "y")
+                   .replaceAll("[đ]", "d")
+                   .replaceAll("[ÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴ]", "A")
+                   .replaceAll("[ÈÉẸẺẼÊỀẾỆỂỄ]", "E")
+                   .replaceAll("[ÌÍỊỈĨ]", "I")
+                   .replaceAll("[ÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠ]", "O")
+                   .replaceAll("[ÙÚỤỦŨƯỪỨỰỬỮ]", "U")
+                   .replaceAll("[ỲÝỴỶỸ]", "Y")
+                   .replaceAll("[Đ]", "D");
     }
 
     /**
@@ -92,10 +130,30 @@ public class ProductService {
         return productRepository.findAllByCategoryID(ID);
     }
 
+    /**
+     * Deletes a product by its ID.
+     *
+     * @param productId the ID of the product to delete
+     * @throws ResourceNotFoundException if product is not found
+     */
     public void deleteProduct(Integer productId) {
-        if (!productRepository.existsById(productId)) {
-            throw new ResourceNotFoundException("Product not found");
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        
+        // Delete images from Cloudinary
+        if (product.getImages() != null) {
+            for (ProductImage image : product.getImages()) {
+                try {
+                    cloudinaryService.deleteImage(image.getImageUrl());
+                } catch (Exception e) {
+                    System.err.println("Failed to delete image from Cloudinary: " + e.getMessage());
+                }
+            }
         }
+        
+        // Delete related stock entries
+        stockEntryRepository.deleteByProductId(productId);
+        
         productRepository.deleteById(productId);
     }
 
@@ -142,6 +200,14 @@ public class ProductService {
         return productRepository.findByNameContainingIgnoreCase(name);
     }
 
+    /**
+     * Add image to product using image URL.
+     *
+     * @param productId the product ID
+     * @param request the image request containing image URL
+     * @return the added product image
+     * @throws ResourceNotFoundException if product is not found
+     */
     public ProductImage addImageToProduct(Integer productId, AddImageRequest request) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
@@ -153,6 +219,12 @@ public class ProductService {
         return productImageRepository.save(image);
     }
 
+    /**
+     * Delete product image.
+     *
+     * @param imageId the image ID to delete
+     * @throws ResourceNotFoundException if image is not found
+     */
     public void deleteImage(Integer imageId) {
         ProductImage image = productImageRepository.findById(imageId)
                 .orElseThrow(() -> new ResourceNotFoundException("Image not found"));
@@ -166,6 +238,15 @@ public class ProductService {
         productImageRepository.deleteById(imageId);
     }
 
+    /**
+     * Upload image file to product.
+     *
+     * @param productId the product ID
+     * @param file the image file to upload
+     * @return the uploaded product image
+     * @throws ResourceNotFoundException if product is not found
+     * @throws RuntimeException if upload fails
+     */
     public ProductImage uploadImageToProduct(Integer productId, org.springframework.web.multipart.MultipartFile file) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
@@ -183,6 +264,13 @@ public class ProductService {
         }
     }
 
+    /**
+     * Get all images for a product.
+     *
+     * @param productId the product ID
+     * @return list of product images
+     * @throws ResourceNotFoundException if product is not found
+     */
     public List<ProductImage> getProductImages(Integer productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));

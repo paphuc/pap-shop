@@ -100,6 +100,12 @@ public class ProductController {
     }
 
 
+    /**
+     * Export all products to Excel file.
+     *
+     * @return Excel file containing all products
+     * @throws Exception if export fails
+     */
     @GetMapping("/export")
     public ResponseEntity<InputStreamResource> exportExcel() throws Exception {
         List<Product> products = productService.getAllProducts();
@@ -127,6 +133,12 @@ public class ProductController {
         return ResponseEntity.ok(updatedProduct);
     }
 
+    /**
+     * Import products from Excel file.
+     *
+     * @param file the Excel file containing products to import
+     * @return success message with import count
+     */
     @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> importExcel(@RequestParam("file") MultipartFile file) {
         if (file == null || file.isEmpty()) {
@@ -143,6 +155,12 @@ public class ProductController {
         }
     }
 
+    /**
+     * Download Excel template for product import.
+     *
+     * @return Excel template file
+     * @throws IOException if template generation fails
+     */
     @GetMapping("/template")
     public ResponseEntity<InputStreamResource> downloadTemplate() throws IOException {
         ByteArrayInputStream template = ProductExcelTemplate.generateTemplate();
@@ -168,24 +186,50 @@ public class ProductController {
         return ResponseEntity.ok(products);
     }
 
+    /**
+     * Add image to product.
+     *
+     * @param productId the product ID
+     * @param request the image request containing image URL
+     * @return the added product image
+     */
     @PostMapping("/{productId}/images")
     public ResponseEntity<ProductImage> addImageToProduct(@PathVariable Integer productId, @RequestBody AddImageRequest request) {
         ProductImage image = productService.addImageToProduct(productId, request);
         return ResponseEntity.ok(image);
     }
 
+    /**
+     * Delete product image.
+     *
+     * @param imageId the image ID to delete
+     * @return success message
+     */
     @DeleteMapping("/images/{imageId}")
     public ResponseEntity<?> deleteImage(@PathVariable Integer imageId) {
         productService.deleteImage(imageId);
         return ResponseEntity.ok("Image deleted successfully");
     }
 
+    /**
+     * Upload image file to product.
+     *
+     * @param productId the product ID
+     * @param file the image file to upload
+     * @return the uploaded product image
+     */
     @PostMapping(value = "/{productId}/upload-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ProductImage> uploadImageToProduct(@PathVariable Integer productId, @RequestParam("file") MultipartFile file) {
         ProductImage image = productService.uploadImageToProduct(productId, file);
         return ResponseEntity.ok(image);
     }
 
+    /**
+     * Get all images for a product.
+     *
+     * @param productId the product ID
+     * @return list of product images
+     */
     @GetMapping("/{productId}/images")
     public ResponseEntity<List<ProductImage>> getProductImages(@PathVariable Integer productId) {
         List<ProductImage> images = productService.getProductImages(productId);
