@@ -183,6 +183,11 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
     /**
      * Changes the authenticated user's password after validating the old password.
      *

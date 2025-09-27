@@ -1,8 +1,10 @@
 package com.pap_shop.controller;
 
 import com.pap_shop.entity.Product;
+import com.pap_shop.entity.ProductImage;
 import com.pap_shop.dto.AddProductRequest;
 import com.pap_shop.dto.UpdateProductRequest;
+import com.pap_shop.dto.AddImageRequest;
 import com.pap_shop.service.ProductService;
 import com.pap_shop.service.ProductImportService;
 import com.pap_shop.util.ProductExcelExporter;
@@ -164,5 +166,29 @@ public class ProductController {
     public ResponseEntity<List<Product>> searchProductsByName(@RequestParam String name) {
         List<Product> products = productService.searchProductsByName(name);
         return ResponseEntity.ok(products);
+    }
+
+    @PostMapping("/{productId}/images")
+    public ResponseEntity<ProductImage> addImageToProduct(@PathVariable Integer productId, @RequestBody AddImageRequest request) {
+        ProductImage image = productService.addImageToProduct(productId, request);
+        return ResponseEntity.ok(image);
+    }
+
+    @DeleteMapping("/images/{imageId}")
+    public ResponseEntity<?> deleteImage(@PathVariable Integer imageId) {
+        productService.deleteImage(imageId);
+        return ResponseEntity.ok("Image deleted successfully");
+    }
+
+    @PostMapping(value = "/{productId}/upload-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProductImage> uploadImageToProduct(@PathVariable Integer productId, @RequestParam("file") MultipartFile file) {
+        ProductImage image = productService.uploadImageToProduct(productId, file);
+        return ResponseEntity.ok(image);
+    }
+
+    @GetMapping("/{productId}/images")
+    public ResponseEntity<List<ProductImage>> getProductImages(@PathVariable Integer productId) {
+        List<ProductImage> images = productService.getProductImages(productId);
+        return ResponseEntity.ok(images);
     }
 }

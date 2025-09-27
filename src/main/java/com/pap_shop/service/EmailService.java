@@ -15,7 +15,7 @@ public class EmailService {
      * Sends a password reset email to the user.
      *
      * @param to the recipient email address
-     * @param resetToken the reset token for password reset
+     * @param resetCode the reset token for password reset
      */
     public void sendResetPasswordEmail(String to, String resetCode) {
         SimpleMailMessage message = new SimpleMailMessage();
