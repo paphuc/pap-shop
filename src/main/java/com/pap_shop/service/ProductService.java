@@ -10,6 +10,7 @@ import com.pap_shop.exception.ResourceNotFoundException;
 import com.pap_shop.repository.CategoryRepository;
 import com.pap_shop.repository.ProductRepository;
 import com.pap_shop.repository.ProductImageRepository;
+import com.pap_shop.repository.StockEntryRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -29,6 +30,7 @@ public class ProductService {
     ProductRepository productRepository;
     CategoryRepository categoryRepository;
     ProductImageRepository productImageRepository;
+    StockEntryRepository stockEntryRepository;
     CloudinaryService cloudinaryService;
 
     /**
@@ -60,17 +62,33 @@ public class ProductService {
     }
     
     /**
-     * Generate SKU for product based on category and product name.
+     * Generate SKU for product based on category.
      *
      * @param productName the product name
      * @param categoryName the category name
      * @return generated SKU
      */
     private String generateSku(String productName, String categoryName) {
-        String prefix = categoryName.substring(0, Math.min(3, categoryName.length())).toUpperCase();
-        String namePart = productName.replaceAll("\\s+", "").substring(0, Math.min(3, productName.replaceAll("\\s+", "").length())).toUpperCase();
-        long timestamp = System.currentTimeMillis() % 10000;
-        return prefix + "-" + namePart + "-" + timestamp;
+        String prefix = removeDiacritics(categoryName).replaceAll("[^a-zA-Z]", "").substring(0, 1).toUpperCase();
+        long number = System.currentTimeMillis() % 100000;
+        return prefix + String.format("%05d", number);
+    }
+    
+    private String removeDiacritics(String input) {
+        return input.replaceAll("[àáạảãâầấậẩẫăằắặẳẵ]", "a")
+                   .replaceAll("[èéẹẻẽêềếệểễ]", "e")
+                   .replaceAll("[ìíịỉĩ]", "i")
+                   .replaceAll("[òóọỏõôồốộổỗơờớợởỡ]", "o")
+                   .replaceAll("[ùúụủũưừứựửữ]", "u")
+                   .replaceAll("[ỳýỵỷỹ]", "y")
+                   .replaceAll("[đ]", "d")
+                   .replaceAll("[ÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴ]", "A")
+                   .replaceAll("[ÈÉẸẺẼÊỀẾỆỂỄ]", "E")
+                   .replaceAll("[ÌÍỊỈĨ]", "I")
+                   .replaceAll("[ÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠ]", "O")
+                   .replaceAll("[ÙÚỤỦŨƯỪỨỰỬỮ]", "U")
+                   .replaceAll("[ỲÝỴỶỸ]", "Y")
+                   .replaceAll("[Đ]", "D");
     }
 
     /**
@@ -119,9 +137,23 @@ public class ProductService {
      * @throws ResourceNotFoundException if product is not found
      */
     public void deleteProduct(Integer productId) {
-        if (!productRepository.existsById(productId)) {
-            throw new ResourceNotFoundException("Product not found");
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        
+        // Delete images from Cloudinary
+        if (product.getImages() != null) {
+            for (ProductImage image : product.getImages()) {
+                try {
+                    cloudinaryService.deleteImage(image.getImageUrl());
+                } catch (Exception e) {
+                    System.err.println("Failed to delete image from Cloudinary: " + e.getMessage());
+                }
+            }
         }
+        
+        // Delete related stock entries
+        stockEntryRepository.deleteByProductId(productId);
+        
         productRepository.deleteById(productId);
     }
 
