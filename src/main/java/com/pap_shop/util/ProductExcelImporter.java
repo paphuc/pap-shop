@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ProductExcelImporter {
     
@@ -30,55 +31,81 @@ public class ProductExcelImporter {
                 Row row = sheet.getRow(i);
                 if (row == null) continue;
                 
-                Product product = new Product();
-                
                 // SKU (Column A)
+                String sku = "";
                 Cell skuCell = row.getCell(0);
                 if (skuCell != null) {
-                    product.setSku(getCellValueAsString(skuCell));
+                    sku = getCellValueAsString(skuCell).trim();
                 }
                 
                 // Name (Column B)
+                String name = "";
                 Cell nameCell = row.getCell(1);
                 if (nameCell != null) {
-                    product.setName(getCellValueAsString(nameCell));
+                    name = getCellValueAsString(nameCell).trim();
                 }
                 
                 // Category ID (Column C)
+                Category category = null;
                 Cell categoryCell = row.getCell(2);
                 if (categoryCell != null) {
                     int categoryId = (int) categoryCell.getNumericCellValue();
-                    Category category = categoryRepository.findById(categoryId)
+                    category = categoryRepository.findById(categoryId)
                             .orElseThrow(() -> new RuntimeException("Category not found: " + categoryId));
+                }
+                
+                // Generate SKU if empty
+                if (sku.isEmpty() && !name.isEmpty() && category != null) {
+                    sku = generateSku(name, category.getName());
+                }
+                
+                // Check if product with same SKU and name exists
+                Optional<Product> existingProduct = productRepository.findBySku(sku);
+                Product product;
+                
+                if (existingProduct.isPresent() && existingProduct.get().getName().equals(name)) {
+                    // Update existing product stock
+                    product = existingProduct.get();
+                    Cell stockCell = row.getCell(5);
+                    if (stockCell != null) {
+                        int additionalStock = (int) stockCell.getNumericCellValue();
+                        product.setStock(product.getStock() + additionalStock);
+                    }
+                } else {
+                    // Create new product
+                    product = new Product();
+                    product.setSku(sku);
+                    product.setName(name);
                     product.setCategory(category);
-                }
-                
-                // Description (Column D)
-                Cell descCell = row.getCell(3);
-                if (descCell != null) {
-                    product.setDescription(getCellValueAsString(descCell));
-                }
-                
-                // Price (Column E)
-                Cell priceCell = row.getCell(4);
-                if (priceCell != null) {
-                    product.setPrice(BigDecimal.valueOf(priceCell.getNumericCellValue()));
-                }
-                
-                // Stock (Column F)
-                Cell stockCell = row.getCell(5);
-                if (stockCell != null) {
-                    product.setStock((int) stockCell.getNumericCellValue());
-                }
-                
-                // Purchase Price (Column G)
-                Cell purchasePriceCell = row.getCell(6);
-                
-                // Supplier (Column H) - Create StockEntry
-                Cell supplierCell = row.getCell(7);
-                if (supplierCell != null && stockCell != null && purchasePriceCell != null) {
-                    Product savedProduct = productRepository.save(product);
                     
+                    // Description (Column D)
+                    Cell descCell = row.getCell(3);
+                    if (descCell != null) {
+                        product.setDescription(getCellValueAsString(descCell));
+                    }
+                    
+                    // Price (Column E)
+                    Cell priceCell = row.getCell(4);
+                    if (priceCell != null) {
+                        product.setPrice(BigDecimal.valueOf(priceCell.getNumericCellValue()));
+                    }
+                    
+                    // Stock (Column F)
+                    Cell stockCell = row.getCell(5);
+                    if (stockCell != null) {
+                        product.setStock((int) stockCell.getNumericCellValue());
+                    }
+                }
+                
+                // Save product
+                Product savedProduct = productRepository.save(product);
+                
+                // Purchase Price (Column G) & Supplier (Column H) - Create StockEntry
+                Cell purchasePriceCell = row.getCell(6);
+                Cell supplierCell = row.getCell(7);
+                Cell stockCell = row.getCell(5);
+                
+                if (supplierCell != null && stockCell != null && purchasePriceCell != null) {
                     StockEntry stockEntry = new StockEntry();
                     stockEntry.setProduct(savedProduct);
                     stockEntry.setStock((int) stockCell.getNumericCellValue());
@@ -89,7 +116,7 @@ public class ProductExcelImporter {
                     stockEntryRepository.save(stockEntry);
                 }
                 
-                products.add(product);
+                products.add(savedProduct);
             }
         }
         
@@ -109,5 +136,28 @@ public class ProductExcelImporter {
             default:
                 return "";
         }
+    }
+    
+    private static String generateSku(String productName, String categoryName) {
+        String prefix = removeDiacritics(categoryName).replaceAll("[^a-zA-Z]", "").substring(0, 1).toUpperCase();
+        long number = System.currentTimeMillis() % 100000;
+        return prefix + String.format("%05d", number);
+    }
+    
+    private static String removeDiacritics(String input) {
+        return input.replaceAll("[àáạảãâầấậẩẫăằắặẳẵ]", "a")
+                   .replaceAll("[èéẹẻẽêềếệểễ]", "e")
+                   .replaceAll("[ìíịỉĩ]", "i")
+                   .replaceAll("[òóọỏõôồốộổỗơờớợởỡ]", "o")
+                   .replaceAll("[ùúụủũưừứựửữ]", "u")
+                   .replaceAll("[ỳýỵỷỹ]", "y")
+                   .replaceAll("[đ]", "d")
+                   .replaceAll("[ÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴ]", "A")
+                   .replaceAll("[ÈÉẸẺẼÊỀẾỆỂỄ]", "E")
+                   .replaceAll("[ÌÍỊỈĨ]", "I")
+                   .replaceAll("[ÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠ]", "O")
+                   .replaceAll("[ÙÚỤỦŨƯỪỨỰỬỮ]", "U")
+                   .replaceAll("[ỲÝỴỶỸ]", "Y")
+                   .replaceAll("[Đ]", "D");
     }
 }

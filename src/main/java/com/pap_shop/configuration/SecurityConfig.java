@@ -42,15 +42,25 @@ public class SecurityConfig {
         put("/api/role", HttpMethod.GET);
         put("/api/products", HttpMethod.GET);
         put("/api/products/search", HttpMethod.GET);
+        put("/api/category", HttpMethod.GET);
         put("/api/user/logout", HttpMethod.POST);
         put("/api/products/*/images", HttpMethod.GET);
     }};
 
-    private final Map<String, HttpMethod> ADMIN_ENDPOINTS = Map.of(
-            "/api/role", HttpMethod.POST,
-            "/api/category", HttpMethod.POST,
-            "/api/role/update", HttpMethod.PUT
-    );
+    private final Map<String, HttpMethod> ADMIN_ENDPOINTS = new HashMap<String, HttpMethod>() {{
+        put("/api/role", HttpMethod.POST);
+        put("/api/category", HttpMethod.POST);
+        put("/api/role/update", HttpMethod.PUT);
+        put("/api/dashboard/stats", HttpMethod.GET);
+        put("/api/dashboard/recent-orders", HttpMethod.GET);
+        put("/api/products", HttpMethod.POST);
+        put("/api/products/*/upload-image", HttpMethod.POST);
+        put("/api/user", HttpMethod.GET);
+        put("/api/user/admin/create", HttpMethod.POST);
+        put("/api/user/admin/*/role", HttpMethod.PUT);
+        put("/api/user/admin/*/status", HttpMethod.PUT);
+        put("/api/user/admin/*", HttpMethod.DELETE);
+    }};
     /**
      * JWT secret key injected from application properties.
      */
@@ -119,7 +129,7 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200", "http://localhost:4201"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true);

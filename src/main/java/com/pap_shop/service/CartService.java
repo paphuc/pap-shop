@@ -17,6 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+/**
+ * Service class for managing shopping cart operations.
+ * Provides business logic for cart management including adding, updating, and removing items.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -27,6 +31,12 @@ public class CartService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
 
+    /**
+     * Get existing cart or create new one for user.
+     *
+     * @param userId the user ID
+     * @return the user's cart
+     */
     public Cart getOrCreateCart(Integer userId) {
         return cartRepository.findByUserId(userId)
                 .orElseGet(() -> {
@@ -39,6 +49,13 @@ public class CartService {
                 });
     }
 
+    /**
+     * Add item to user's cart.
+     *
+     * @param userId the user ID
+     * @param request the add to cart request
+     * @return the updated cart
+     */
     public Cart addToCart(Integer userId, AddToCartRequest request) {
         Cart cart = getOrCreateCart(userId);
         Product product = productRepository.findById(request.getProductId())
@@ -70,6 +87,14 @@ public class CartService {
         return cartRepository.findById(cart.getId()).orElse(cart);
     }
 
+    /**
+     * Update cart item quantity.
+     *
+     * @param userId the user ID
+     * @param cartItemId the cart item ID
+     * @param request the update request
+     * @return the updated cart
+     */
     public Cart updateCartItem(Integer userId, Integer cartItemId, UpdateCartItemRequest request) {
         Cart cart = getOrCreateCart(userId);
         CartItem cartItem = cartItemRepository.findById(cartItemId)
@@ -89,6 +114,13 @@ public class CartService {
         return cartRepository.findById(cart.getId()).orElse(cart);
     }
 
+    /**
+     * Remove item from cart.
+     *
+     * @param userId the user ID
+     * @param cartItemId the cart item ID to remove
+     * @return the updated cart
+     */
     public Cart removeFromCart(Integer userId, Integer cartItemId) {
         Cart cart = getOrCreateCart(userId);
         CartItem cartItem = cartItemRepository.findById(cartItemId)
@@ -102,16 +134,33 @@ public class CartService {
         return cartRepository.findById(cart.getId()).orElse(cart);
     }
 
+    /**
+     * Get user's cart.
+     *
+     * @param userId the user ID
+     * @return the user's cart
+     */
     public Cart getCart(Integer userId) {
         return getOrCreateCart(userId);
     }
 
+    /**
+     * Clear all items from user's cart.
+     *
+     * @param userId the user ID
+     */
     public void clearCart(Integer userId) {
         Cart cart = getOrCreateCart(userId);
         cartItemRepository.deleteByCartId(cart.getId());
         cartItemRepository.resetAutoIncrement();
     }
 
+    /**
+     * Get total number of items in user's cart.
+     *
+     * @param userId the user ID
+     * @return the total item count
+     */
     public Integer getCartItemCount(Integer userId) {
         Cart cart = getOrCreateCart(userId);
         return cart.getCartItems().size();
