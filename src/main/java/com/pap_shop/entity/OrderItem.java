@@ -1,6 +1,5 @@
 package com.pap_shop.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,7 +33,6 @@ public class OrderItem {
      */
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
-    @JsonBackReference
     private Order order;
 
     /**

@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Integer> {
     
-    @Query("SELECT SUM(o.totalPrice) FROM Order o WHERE o.status = 'DELIVERED'")
+    @Query("SELECT SUM(o.totalPrice) FROM Order o")
     BigDecimal getTotalRevenue();
     
     @Query("SELECT o FROM Order o ORDER BY o.createdAt DESC")
