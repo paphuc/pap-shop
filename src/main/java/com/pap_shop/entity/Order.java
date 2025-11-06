@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.pap_shop.enums.OrderStatus;
 import lombok.*;
 
@@ -39,9 +40,9 @@ public class Order {
 
     /**
      * The total price of the order.
-     * The value is stored as a BigDecimal with a precision of 10 digits and scale of 2 digits after the decimal point.
+     * The value is stored as a BigDecimal with a precision of 15 digits and scale of 2 digits after the decimal point.
      */
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(nullable = false, precision = 15, scale = 2)
     private BigDecimal totalPrice;
 
     /**
@@ -59,11 +60,18 @@ public class Order {
     @Column(name = "created_at", updatable = false)
     private Timestamp createdAt;
 
+    @Column(name = "shipping_address", nullable = false)
+    private String shippingAddress;
+
+    @Column(columnDefinition = "TEXT")
+    private String notes;
+
     /**
      * The list of items in the order.
      * The relationship is one-to-many (one order can have many order items).
      * CascadeType.ALL ensures that related order items are persisted, updated, or deleted with the order.
      */
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<OrderItem> orderItems;
 }

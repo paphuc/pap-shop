@@ -33,13 +33,14 @@ public class SecurityConfig {
     /**
      * Array of public endpoints that do not require authentication.
      */
-    private final Map<String, HttpMethod> PUBLIC_ENDPOINTS = new HashMap<String, HttpMethod>() {{
+    private final Map<String, HttpMethod> PUBLIC_ENDPOINTS = new HashMap<>() {{
         put("/api/user/login", HttpMethod.POST);
         put("/api/user/register", HttpMethod.POST);
         put("/api/user/forgot-password", HttpMethod.POST);
         put("/api/user/validate-reset-code", HttpMethod.POST);
         put("/api/user/reset-password", HttpMethod.PUT);
         put("/api/role", HttpMethod.GET);
+        put("/api/products/*", HttpMethod.GET);
         put("/api/products", HttpMethod.GET);
         put("/api/products/search", HttpMethod.GET);
         put("/api/category", HttpMethod.GET);
@@ -47,7 +48,7 @@ public class SecurityConfig {
         put("/api/products/*/images", HttpMethod.GET);
     }};
 
-    private final Map<String, HttpMethod> ADMIN_ENDPOINTS = new HashMap<String, HttpMethod>() {{
+    private final Map<String, HttpMethod> ADMIN_ENDPOINTS = new HashMap<>() {{
         put("/api/role", HttpMethod.POST);
         put("/api/category", HttpMethod.POST);
         put("/api/role/update", HttpMethod.PUT);
@@ -60,6 +61,8 @@ public class SecurityConfig {
         put("/api/user/admin/*/role", HttpMethod.PUT);
         put("/api/user/admin/*/status", HttpMethod.PUT);
         put("/api/user/admin/*", HttpMethod.DELETE);
+        put("/api/orders/*/status", HttpMethod.PUT);
+        put("/api/orders/admin/all", HttpMethod.GET);
     }};
     /**
      * JWT secret key injected from application properties.
