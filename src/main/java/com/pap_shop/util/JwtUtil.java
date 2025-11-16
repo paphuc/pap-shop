@@ -4,16 +4,23 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+@Component
 public class JwtUtil {
-    private static final String SECRET_KEY = "fh8d+sYvG+GDpR1ibC0WMsD7q40pTwc4x1d5dTZ1t9nO83ge46CI5JNhbpB9bM9W";
+    private static String secretKey;
+
+    @Value("${jwt.secretkey}")
+    public void setSecretKey(String key) {
+        secretKey = key;
+    }
 
     public static String generateToken(User user) {
-
         String jti = UUID.randomUUID().toString();
 
         return Jwts.builder()
@@ -22,13 +29,13 @@ public class JwtUtil {
                 .claim("scope", user.getRole().getRole())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1)))
-                .signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()), SignatureAlgorithm.HS256)
+                .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()), SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public static Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
+                .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes()))
                 .build()
                 .parseClaimsJws(token)
                 .getBody();

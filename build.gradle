@@ -61,6 +61,12 @@ dependencies {
 	// Cloudinary for image storage
 	implementation 'com.cloudinary:cloudinary-http44:1.34.0'
 
+	// Swagger/OpenAPI
+	implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
+
+	// WebSocket
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
 }
 
 tasks.named('test') {

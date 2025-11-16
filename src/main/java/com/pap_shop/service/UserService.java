@@ -239,25 +239,27 @@ public class UserService {
      * @param oldPassword the current password for verification
      * @param newPassword the new password to set
      * @param confirmNewPassword confirmation of the new password
-     * @throws RuntimeException if old password is incorrect, passwords don't match, or new password is too short
+     * @throws ResourceNotFoundException if user is not found
+     * @throws AuthenticationException if old password is incorrect
+     * @throws IllegalArgumentException if passwords don't match or new password is too short
      */
     public void changePassword(String oldPassword, String newPassword, String confirmNewPassword) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-            throw new RuntimeException("Old password is incorrect");
+            throw new AuthenticationException("Old password is incorrect");
         }
 
         if (!newPassword.equals(confirmNewPassword)) {
-            throw new RuntimeException("New passwords do not match");
+            throw new IllegalArgumentException("New passwords do not match");
         }
 
         if (newPassword.length() < 6) {
-            throw new RuntimeException("New password must be at least 6 characters");
+            throw new IllegalArgumentException("New password must be at least 6 characters");
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));

@@ -6,6 +6,7 @@ import com.pap_shop.entity.Cart;
 import com.pap_shop.entity.CartItem;
 import com.pap_shop.entity.Product;
 import com.pap_shop.entity.User;
+import com.pap_shop.exception.InsufficientStockException;
 import com.pap_shop.exception.ResourceNotFoundException;
 import com.pap_shop.repository.CartItemRepository;
 import com.pap_shop.repository.CartRepository;
@@ -62,7 +63,7 @@ public class CartService {
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         if (product.getStock() < request.getQuantity()) {
-            throw new IllegalArgumentException("Not enough stock available");
+            throw new InsufficientStockException("Sản phẩm " + product.getName() + " không đủ hàng");
         }
 
         Optional<CartItem> existingItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), product.getId());
@@ -71,7 +72,7 @@ public class CartService {
             CartItem cartItem = existingItem.get();
             int newQuantity = cartItem.getQuantity() + request.getQuantity();
             if (product.getStock() < newQuantity) {
-                throw new IllegalArgumentException("Not enough stock available");
+                throw new InsufficientStockException("Sản phẩm " + product.getName() + " không đủ hàng");
             }
             cartItem.setQuantity(newQuantity);
             cartItemRepository.save(cartItem);
@@ -104,8 +105,9 @@ public class CartService {
             throw new IllegalArgumentException("Cart item does not belong to user");
         }
 
-        if (cartItem.getProduct().getStock() < request.getQuantity()) {
-            throw new IllegalArgumentException("Not enough stock available");
+        Product product = cartItem.getProduct();
+        if (product.getStock() < request.getQuantity()) {
+            throw new InsufficientStockException("Sản phẩm " + product.getName() + " không đủ hàng");
         }
 
         cartItem.setQuantity(request.getQuantity());

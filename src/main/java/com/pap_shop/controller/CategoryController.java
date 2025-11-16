@@ -56,4 +56,25 @@ public class CategoryController {
         return categoryService.getCategoryById(id);
     }
 
+    /**
+     * Updates an existing category.
+     *
+     * @param id the ID of the category to update
+     * @param category the updated category data
+     * @return the updated category
+     */
+    @PutMapping("/{id}")
+    public Category updateCategory(@PathVariable Integer id, @RequestBody Category category) {
+        return categoryService.updateCategory(id, category);
+    }
+
+    /**
+     * Deletes a category by ID.
+     *
+     * @param id the ID of the category to delete
+     */
+    @DeleteMapping("/{id}")
+    public void deleteCategory(@PathVariable Integer id) {
+        categoryService.deleteCategory(id);
+    }
 }
