@@ -44,13 +44,37 @@ public class SecurityConfig {
         put("/api/products", HttpMethod.GET);
         put("/api/products/search", HttpMethod.GET);
         put("/api/category", HttpMethod.GET);
-        put("/api/user/logout", HttpMethod.POST);
         put("/api/products/*/images", HttpMethod.GET);
+        put("/api/reviews/products/*", HttpMethod.GET);
+        put("/api/announcements/active", HttpMethod.GET);
+    }};
+
+    private final Map<String, HttpMethod> USER_ENDPOINTS = new HashMap<>() {{
+        put("/api/user/logout", HttpMethod.POST);
+        put("/api/user/update", HttpMethod.PUT);
+        put("/api/user/profile", HttpMethod.GET);
+        put("/api/user/update/password", HttpMethod.PUT);
+        put("/api/cart", HttpMethod.GET);
+        put("/api/cart/add", HttpMethod.POST);
+        put("/api/cart/items/*", HttpMethod.PUT);
+        put("/api/cart/items/*", HttpMethod.DELETE);
+        put("/api/cart/clear", HttpMethod.DELETE);
+        put("/api/cart/count", HttpMethod.GET);
+        put("/api/orders", HttpMethod.POST);
+        put("/api/orders", HttpMethod.GET);
+        put("/api/orders/*", HttpMethod.GET);
+        put("/api/orders/*/cancel", HttpMethod.PUT);
+        put("/api/reviews/products/*", HttpMethod.POST);
+        put("/api/reviews/*", HttpMethod.PUT);
+        put("/api/reviews/*", HttpMethod.DELETE);
+        put("/api/orders/*/status", HttpMethod.PUT);
     }};
 
     private final Map<String, HttpMethod> ADMIN_ENDPOINTS = new HashMap<>() {{
         put("/api/role", HttpMethod.POST);
         put("/api/category", HttpMethod.POST);
+        put("/api/category/*", HttpMethod.PUT);
+        put("/api/category/*", HttpMethod.DELETE);
         put("/api/role/update", HttpMethod.PUT);
         put("/api/dashboard/stats", HttpMethod.GET);
         put("/api/dashboard/recent-orders", HttpMethod.GET);
@@ -61,8 +85,12 @@ public class SecurityConfig {
         put("/api/user/admin/*/role", HttpMethod.PUT);
         put("/api/user/admin/*/status", HttpMethod.PUT);
         put("/api/user/admin/*", HttpMethod.DELETE);
-        put("/api/orders/*/status", HttpMethod.PUT);
         put("/api/orders/admin/all", HttpMethod.GET);
+        put("/api/announcements", HttpMethod.POST);
+        put("/api/announcements", HttpMethod.GET);
+        put("/api/announcements/*", HttpMethod.PUT);
+        put("/api/announcements/*/toggle", HttpMethod.PUT);
+        put("/api/announcements/*", HttpMethod.DELETE);
     }};
     /**
      * JWT secret key injected from application properties.
@@ -100,8 +128,17 @@ public class SecurityConfig {
                 request.requestMatchers(new AntPathRequestMatcher(entry.getKey(), entry.getValue().name()))
                         .hasAuthority("SCOPE_ADMIN");
             }
+
+            for (Map.Entry<String, HttpMethod> entry : USER_ENDPOINTS.entrySet()) {
+                request.requestMatchers(new AntPathRequestMatcher(entry.getKey(), entry.getValue().name()))
+                        .authenticated();
+            }
             
             request.requestMatchers(new AntPathRequestMatcher("/uploads/**")).permitAll();
+            request.requestMatchers(new AntPathRequestMatcher("/swagger-ui/**")).permitAll();
+            request.requestMatchers(new AntPathRequestMatcher("/api-docs/**")).permitAll();
+            request.requestMatchers(new AntPathRequestMatcher("/swagger-ui.html")).permitAll();
+            request.requestMatchers(new AntPathRequestMatcher("/ws/**")).permitAll();
             
             request.anyRequest().authenticated();
         });
