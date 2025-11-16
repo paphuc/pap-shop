@@ -51,4 +51,33 @@ public class CategoryService {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + id));
     }
+
+    /**
+     * Updates an existing category.
+     *
+     * @param id the ID of the category to update
+     * @param category the updated category data
+     * @return the updated category
+     * @throws ResourceNotFoundException if category is not found
+     */
+    public Category updateCategory(Integer id, Category category) {
+        Category existingCategory = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + id));
+        
+        existingCategory.setName(category.getName());
+        return categoryRepository.save(existingCategory);
+    }
+
+    /**
+     * Deletes a category by its ID.
+     *
+     * @param id the ID of the category to delete
+     * @throws ResourceNotFoundException if category is not found
+     */
+    public void deleteCategory(Integer id) {
+        if (!categoryRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Category not found with id: " + id);
+        }
+        categoryRepository.deleteById(id);
+    }
 }
