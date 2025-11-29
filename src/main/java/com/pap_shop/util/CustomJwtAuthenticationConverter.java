@@ -27,7 +27,8 @@ public class CustomJwtAuthenticationConverter implements Converter<Jwt, Abstract
 
 
         Collection<GrantedAuthority> authorities = AuthorityUtils.NO_AUTHORITIES;
-        if (jwt.containsClaim("scope")) {
+        // THAY ĐỔI: containsClaim -> hasClaim
+        if (jwt.hasClaim("scope")) {
             String scope = jwt.getClaimAsString("scope");
             authorities = AuthorityUtils.commaSeparatedStringToAuthorityList("SCOPE_" + scope);
         }

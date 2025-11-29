@@ -6,9 +6,8 @@ import java.math.BigDecimal;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.pap_shop.enums.OrderStatus;
+import jakarta.persistence.*;
 import lombok.*;
-
-import javax.persistence.*;
 
 /**
  * Entity representing an order placed by a customer.

@@ -5,12 +5,11 @@ import com.pap_shop.dto.UpdateCartItemRequest;
 import com.pap_shop.entity.Cart;
 import com.pap_shop.service.CartService;
 import com.pap_shop.service.UserService;
+import jakarta.validation.Valid; // Sửa import
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
 
 /**
  * REST controller for managing shopping cart operations.
