@@ -1,9 +1,7 @@
 package com.pap_shop.entity;
 
-
+import jakarta.persistence.*; // Thay đổi từ javax.persistence sang jakarta.persistence
 import lombok.*;
-
-import javax.persistence.*;
 
 @Entity
 @Table(name = "role_list")

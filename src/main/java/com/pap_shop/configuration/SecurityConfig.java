@@ -41,6 +41,7 @@ public class SecurityConfig {
         put("/api/user/reset-password", HttpMethod.PUT);
         put("/api/role", HttpMethod.GET);
         put("/api/products/*", HttpMethod.GET);
+        put("/api/products/category/{categoryID}", HttpMethod.GET);
         put("/api/products", HttpMethod.GET);
         put("/api/products/search", HttpMethod.GET);
         put("/api/category", HttpMethod.GET);

@@ -8,10 +8,10 @@ import com.pap_shop.dto.UserRequest;
 import com.pap_shop.dto.ValidateCodeRequest;
 import com.pap_shop.entity.User;
 import com.pap_shop.service.UserService;
+import jakarta.servlet.http.HttpServletRequest; // Sửa import
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
 

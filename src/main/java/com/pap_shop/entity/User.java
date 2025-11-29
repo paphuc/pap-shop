@@ -3,10 +3,9 @@ package com.pap_shop.entity;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-
-import javax.persistence.*;
 
 /**
  * Entity representing a customer.
