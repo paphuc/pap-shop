@@ -35,6 +35,7 @@ public class SecurityConfig {
      */
     private final Map<String, HttpMethod> PUBLIC_ENDPOINTS = new HashMap<>() {{
         put("/api/user/login", HttpMethod.POST);
+        put("/api/chat", HttpMethod.POST);
         put("/api/user/register", HttpMethod.POST);
         put("/api/user/forgot-password", HttpMethod.POST);
         put("/api/user/validate-reset-code", HttpMethod.POST);

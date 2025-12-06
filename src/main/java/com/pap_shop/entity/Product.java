@@ -86,4 +86,10 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews;
+
+    /**
+     * Embedding vector for semantic search (not stored in database)
+     */
+    @Transient
+    private float[] embedding;
 }

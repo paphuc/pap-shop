@@ -32,6 +32,7 @@ public class ProductService {
     ProductImageRepository productImageRepository;
     StockEntryRepository stockEntryRepository;
     CloudinaryService cloudinaryService;
+    ProductSearchService searchService;
 
     /**
      * Adds a new product using product data from a DTO.
@@ -58,7 +59,9 @@ public class ProductService {
         }
         product.setSku(sku);
         
-        return productRepository.save(product);
+        Product savedProduct = productRepository.save(product);
+        searchService.updateProductEmbedding(savedProduct);
+        return savedProduct;
     }
     
     /**
@@ -187,7 +190,9 @@ public class ProductService {
             product.setStock(updateRequest.getStock());
         }
 
-        return productRepository.save(product);
+        Product updatedProduct = productRepository.save(product);
+        searchService.updateProductEmbedding(updatedProduct);
+        return updatedProduct;
     }
 
     /**
